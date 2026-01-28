@@ -11,3 +11,6 @@ robotpy_version = "2026.2.1"
 requires = [
     "robotpy-rev==2026.0.1",
 ]
+
+[tool.pyright]
+typeCheckingMode = "standard"

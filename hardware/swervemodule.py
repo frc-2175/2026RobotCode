@@ -31,8 +31,8 @@ class SwerveModule:
         self.steerMotor = rev.SparkMax(steerMotorId, rev.SparkLowLevel.MotorType.kBrushless)
         self.angleOffset = angleOffset
 
-        self.driveMotor.configure(configs.driveMotorConfig, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
-        self.steerMotor.configure(configs.steerMotorConfig, rev.SparkMax.ResetMode.kResetSafeParameters, rev.SparkMax.PersistMode.kPersistParameters)
+        self.driveMotor.configure(configs.driveMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
+        self.steerMotor.configure(configs.steerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
 
         self.driveEncoder = self.driveMotor.getEncoder()
         self.steerEncoder = self.steerMotor.getAbsoluteEncoder()

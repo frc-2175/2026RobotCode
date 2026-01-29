@@ -38,6 +38,6 @@ steerMotorConfig.absoluteEncoder.velocityConversionFactor(2 * math.pi / 60)
 # Use PID for control with the absolute encoder for feedback. Because this PID
 # controller works in angles, which wrap around, we enable position wrapping.
 steerMotorConfig.closedLoop.setFeedbackSensor(rev.FeedbackSensor.kAbsoluteEncoder)
-steerMotorConfig.closedLoop.pid(1, 0, 0.2)
+steerMotorConfig.closedLoop.pid(1, 0, 0.1)
 steerMotorConfig.closedLoop.positionWrappingEnabled(True)
 steerMotorConfig.closedLoop.positionWrappingInputRange(-math.pi, math.pi)

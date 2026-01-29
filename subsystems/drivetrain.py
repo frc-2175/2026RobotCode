@@ -11,14 +11,14 @@ from wpimath.geometry import Rotation2d, Translation2d
 
 class Drivetrain:
     def __init__(self):
-        self.frontLeftSwerveModule = SwerveModule(1, 2, 0)
-        self.frontRightSwerveModule = SwerveModule(3, 4, 0)
-        self.backLeftSwerveModule = SwerveModule(5, 6 , 0)
-        self.backRightSwerveModule = SwerveModule(7, 8, 0)
+        self.frontLeftSwerveModule = SwerveModule(28, 22, wpimath.units.degreesToRadians(90))
+        self.frontRightSwerveModule = SwerveModule(27, 23, 0)
+        self.backLeftSwerveModule = SwerveModule(25, 21, 0)
+        self.backRightSwerveModule = SwerveModule(26, 24, wpimath.units.degreesToRadians(90))
         self.gyro = navx.AHRS.create_spi()
         self.desiredChassisSpeeds = ChassisSpeeds()
 
-        wd = constants.wheelDistanceFromCenter #Check that this value is correct
+        wd = constants.wheelDistanceFromCenter
         self.kinematics = SwerveDrive4Kinematics(
             Translation2d(wd, wd),
             Translation2d(wd, -wd),

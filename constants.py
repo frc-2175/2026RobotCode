@@ -14,16 +14,9 @@ robotMass = wpimath.units.lbsToKilograms(100)
 wheelDiameter = wpimath.units.inchesToMeters(3)
 """Diameter of a drive wheel."""
 
+# TODO Verify that this number is accurate
 wheelDistanceFromCenter = wpimath.units.inchesToMeters(11.875)
 """The distance along x or y from the center of the robot to a swerve wheel."""
-
-swerveModulePositions = (
-    Translation2d(wheelDistanceFromCenter, wheelDistanceFromCenter), # Front left
-    Translation2d(wheelDistanceFromCenter, -wheelDistanceFromCenter), # Front right
-    Translation2d(-wheelDistanceFromCenter, wheelDistanceFromCenter), # Back left
-    Translation2d(-wheelDistanceFromCenter, -wheelDistanceFromCenter), # Back right
-)
-"""The positions of each swerve module relative to the robot's center (FL/FR/BL/BR)"""
 
 # TODO: Verify the gear ratio used on this year's bot
 driveMotorReduction = 4.71

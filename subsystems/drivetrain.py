@@ -6,7 +6,8 @@ import constants
 import ntutil
 from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kinematics
 import wpimath.units
-from wpimath.geometry import Rotation2d, Translation2d
+from wpimath.geometry import Rotation2d, Translation2d, Pose2d
+from wpimath.estimator import SwerveDrive4PoseEstimator
 
 
 class Drivetrain:
@@ -15,6 +16,21 @@ class Drivetrain:
         self.frontRightSwerveModule = SwerveModule(27, 23, 0)
         self.backLeftSwerveModule = SwerveModule(25, 21, 0)
         self.backRightSwerveModule = SwerveModule(26, 24, wpimath.units.degreesToRadians(90))
+
+        self.odometry = SwerveDrive4PoseEstimator(
+            self.kinematics,
+            self.gyro.getRotation2d(),
+            (
+                (
+                    self.frontLeftSwerveModule.getActualPosition(),
+                    self.frontRightSwerveModule.getActualPosition(),
+                    self.backLeftSwerveModule.getActualPosition(),
+                    self.backRightSwerveModule.getActualPosition(),
+                )
+            ),
+            Pose2d(0, 0, self.gyro.getRotation2d())
+        )
+
         self.gyro = navx.AHRS.create_spi()
         self.desiredChassisSpeeds = ChassisSpeeds()
 
@@ -48,6 +64,16 @@ class Drivetrain:
             self.backRightSwerveModule.getActualState(),
         ])
         self.gyroHeadingTopic.set(self.gyro.getRotation2d().radians())
+
+        self.odometry.update(
+            self.gyro.getRotation2d(),
+            (
+                self.frontLeftSwerveModule.getActualPosition(),
+                self.frontRightSwerveModule.getActualPosition(),
+                self.backLeftSwerveModule.getActualPosition(),
+                self.backRightSwerveModule.getActualPosition(),
+            )
+        )
 
     def drive(
         self,

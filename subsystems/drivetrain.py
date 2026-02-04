@@ -12,10 +12,13 @@ from wpimath.estimator import SwerveDrive4PoseEstimator
 
 class Drivetrain:
     def __init__(self):
-        self.frontLeftSwerveModule = SwerveModule(28, 22, wpimath.units.degreesToRadians(90))
-        self.frontRightSwerveModule = SwerveModule(27, 23, 0)
-        self.backLeftSwerveModule = SwerveModule(25, 21, 0)
-        self.backRightSwerveModule = SwerveModule(26, 24, wpimath.units.degreesToRadians(90))
+        self.frontLeftSwerveModule = SwerveModule(23, 17, wpimath.units.degreesToRadians(90))
+        self.frontRightSwerveModule = SwerveModule(22, 10, 0)
+        self.backLeftSwerveModule = SwerveModule(9, 12, 0)
+        self.backRightSwerveModule = SwerveModule(14, 24, wpimath.units.degreesToRadians(90))
+
+        self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
+        self.gyro = navx.AHRS.create_spi()
 
         self.odometry = SwerveDrive4PoseEstimator(
             self.kinematics,
@@ -31,10 +34,8 @@ class Drivetrain:
             Pose2d(0, 0, self.gyro.getRotation2d())
         )
 
-        self.gyro = navx.AHRS.create_spi()
         self.desiredChassisSpeeds = ChassisSpeeds()
 
-        self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)

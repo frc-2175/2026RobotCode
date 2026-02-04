@@ -5,7 +5,6 @@ import wpimath.units
 
 import configs
 
-
 class SwerveModule:
     """
     The SwerveModule class contains common logic for controlling a swerve
@@ -51,6 +50,11 @@ class SwerveModule:
         # In real robot projects, we might do other work here to improve swerve
         # behavior, e.g. driving wheels more slowly when they are still pointing in
         # the wrong direction.
+        encoderRotation = Rotation2d(self.steerEncoder.getPosition())
+        state.optimize(encoderRotation)
+        state.cosineScale(encoderRotation)
+        self.drivePidController.setReference(state.speed, rev.SparkLowLevel.ControlType.kVelocity)
+        self.steerPidController.setReference(correctedAngle.radians(), rev.SparkLowLevel.ControlType.kPosition)
         encoderRotation = Rotation2d(self.steerEncoder.getPosition())
         state.optimize(encoderRotation)
         state.cosineScale(encoderRotation)

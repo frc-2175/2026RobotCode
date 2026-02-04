@@ -18,6 +18,14 @@ wheelDiameter = wpimath.units.inchesToMeters(3)
 wheelDistanceFromCenter = wpimath.units.inchesToMeters(11.875)
 """The distance along x or y from the center of the robot to a swerve wheel."""
 
+swerveModulePositions = (
+  Translation2d(wheelDistanceFromCenter, wheelDistanceFromCenter),
+  Translation2d(wheelDistanceFromCenter, -wheelDistanceFromCenter),
+  Translation2d(-wheelDistanceFromCenter, wheelDistanceFromCenter),
+  Translation2d(-wheelDistanceFromCenter, -wheelDistanceFromCenter),
+)
+"""The positions of each swerve module relative to the robot origin, in the order FL/FR/BL/BR"""
+
 # TODO: Verify the gear ratio used on this year's bot
 driveMotorReduction = 4.71
 """"High speed" gear ratio. Unit: ratio (N:1). (Source: REV MAXSwerve product page)"""

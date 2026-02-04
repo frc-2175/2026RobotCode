@@ -1,7 +1,7 @@
 import wpilib
 from subsystems.drivetrain import Drivetrain
 
-class myRobot (wpilib.TimedRobot):
+class MyRobot(wpilib.TimedRobot):
 
 
     def robotInit(self):

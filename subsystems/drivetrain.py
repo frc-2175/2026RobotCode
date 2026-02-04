@@ -34,13 +34,7 @@ class Drivetrain:
         self.gyro = navx.AHRS.create_spi()
         self.desiredChassisSpeeds = ChassisSpeeds()
 
-        wd = constants.wheelDistanceFromCenter
-        self.kinematics = SwerveDrive4Kinematics(
-            Translation2d(wd, wd),
-            Translation2d(wd, -wd),
-            Translation2d(-wd, wd),
-            Translation2d(-wd, -wd),
-        )
+        self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)

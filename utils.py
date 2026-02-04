@@ -75,7 +75,7 @@ def sign_or_zero(v: float) -> float:
     else:
         return sign(v)
 
-Unit = TypeVar("Unit", bound=float, default=float)
+Unit = TypeVar("Unit", bound=float)
 
 class Vector2d(Generic[Unit]):
     """

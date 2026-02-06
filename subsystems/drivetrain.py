@@ -12,10 +12,10 @@ from wpimath.estimator import SwerveDrive4PoseEstimator
 
 class Drivetrain:
     def __init__(self):
-        self.frontLeftSwerveModule = SwerveModule(23, 17, wpimath.units.degreesToRadians(90))
+        self.frontLeftSwerveModule = SwerveModule(23, 17, 0)
         self.frontRightSwerveModule = SwerveModule(22, 10, 0)
         self.backLeftSwerveModule = SwerveModule(9, 12, 0)
-        self.backRightSwerveModule = SwerveModule(14, 24, wpimath.units.degreesToRadians(90))
+        self.backRightSwerveModule = SwerveModule(14, 24, 0)
 
         self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
         self.gyro = navx.AHRS.create_spi()
@@ -69,6 +69,8 @@ class Drivetrain:
                 self.backRightSwerveModule.getActualPosition(),
             )
         )
+
+        #.set(self.odometry.getEstimatedPosition())
 
     def drive(
         self,

@@ -15,9 +15,9 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def teleopPeriodic(self):
-        x = -self.gamepad.getRawAxis(1)
-        y = -self.gamepad.getRawAxis(0)
-        t = -self.gamepad.getRawAxis(4)
+        x = -self.gamepad.getRawAxis(1) * 4
+        y = -self.gamepad.getRawAxis(0) * 4
+        t = -self.gamepad.getRawAxis(4) * 2
         #x = self.leftJoystick.getRawAxis(1)
         #y = self.leftJoystick.getRawAxis(0)
         #t = self.rightJoystick.getRawAxis(0)

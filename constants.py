@@ -36,5 +36,5 @@ steerMotorReduction = 12
 driveMotorFreeSpeed = 5676
 """Speed of a drive motor under no load. Unit: RPM. (Source: REV NEO data sheet)"""
 
-maxSpeed = math.pi * wheelDiameter * driveMotorFreeSpeed / 60.0 / driveMotorReduction
+maxSpeed: wpimath.units.meters_per_second = math.pi * wheelDiameter * driveMotorFreeSpeed / 60.0 / driveMotorReduction
 """Maximum possible speed of a single drive wheel. Unit: m/s."""

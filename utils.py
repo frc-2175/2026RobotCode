@@ -1,4 +1,5 @@
-from __future__ import annotations 
+from __future__ import annotations
+import math
 from typing import Generic, SupportsInt, TypeVar
 import typing
 from wpimath.geometry import Rotation2d, Translation2d
@@ -229,8 +230,24 @@ class Vector2d(Generic[Unit]):
         
         :returns: The angle of the vector
         """
-        # WPILib screams at you in this extremely obvious case.
-        if self.x == 0 and self.y == 0:
+        # WPILib screams at you in the extremely obvious (x=0, y=0) case. At the time of this
+        # writing, the C++ constructor for Rotation2d has the following logic (paraphrased):
+        #
+        # double magnitude = gcem::hypot(x, y);
+        # if (magnitude <= 1e-6) {
+        #     wpi::math::MathSharedStore::ReportError(
+        #         "x and y components of Rotation2d are zero\n{}",
+        #         wpi::GetStackTrace(1));
+        # }
+        #
+        # Further investigation reveals that gcem::hypot just ends up calling C++'s std::hypot.
+        # Unfortunately Python's math.hypot is not guaranteed to use that exact same
+        # implementation, meaning that to truly shut up this error we would need to be extremely
+        # precise about exactly which floating-point calculations are performed for each platform
+        # WPILib compiles to, which may vary by which libc++ is being used to compile! This is too
+        # asinine to be worthwhile, so we just hope that this catches the vast majority of
+        # near-zero vectors and keeps our logs relatively clean.
+        if math.hypot(self.x, self.y) <= 1e-6:
             return Rotation2d()
         return self.translation.angle()
 

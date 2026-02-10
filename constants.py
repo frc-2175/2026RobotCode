@@ -38,3 +38,7 @@ driveMotorFreeSpeed = 5676
 
 maxSpeed = math.pi * wheelDiameter * driveMotorFreeSpeed / 60.0 / driveMotorReduction
 """Maximum possible speed of a single drive wheel. Unit: m/s."""
+
+headingControllerP = 1 / wpimath.units.degreesToRadians(15)
+headingControllerI = 0
+headingControllerD = 0

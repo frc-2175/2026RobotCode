@@ -8,6 +8,8 @@ from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kin
 import wpimath.units
 from wpimath.geometry import Rotation2d, Translation2d, Pose2d
 from wpimath.estimator import SwerveDrive4PoseEstimator
+from hardware.swerveheading import SwerveHeadingController, SwerveHeadingMode
+import math
 
 
 class Drivetrain:
@@ -36,6 +38,12 @@ class Drivetrain:
 
         self.desiredChassisSpeeds = ChassisSpeeds()
 
+        self.headingController = SwerveHeadingController(
+            getHeading = self.getHeading,
+            getRate = self.getHeadingRate,
+            mode = SwerveHeadingMode.HUMAN_DRIVERS,
+        )
+
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)
@@ -44,6 +52,11 @@ class Drivetrain:
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
 
     def periodic(self):
+
+        moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
+        newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
+        self.desiredChassisSpeeds.omega = newTurnSpeed
+
         frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(self.desiredChassisSpeeds)
         self.frontLeftSwerveModule.setDesiredState(frontLeft)
         self.frontRightSwerveModule.setDesiredState(frontRight)
@@ -84,3 +97,9 @@ class Drivetrain:
             turnSpeed,
             self.gyro.getRotation2d()
             )
+        
+    def getHeading(self) -> Rotation2d:
+        return self.odometry.getEstimatedPosition().rotation()
+    
+    def getHeadingRate(self) -> wpimath.units.radians_per_second:
+        return wpimath.units.degreesToRadians(self.gyro.getRate())

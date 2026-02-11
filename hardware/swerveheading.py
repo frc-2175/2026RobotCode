@@ -50,17 +50,19 @@ class SwerveHeadingController:
         self.badModeAlert = wpilib.Alert("Bad mode for swerve heading controller", wpilib.Alert.AlertType.kError)
 
     def update(self, speed: float, rot: float) -> float:
+        gyroRate = self.getRate()
+
         self.stateTopic.set(str(self.mode))
         self.goalTopic.set(self.goal)
-        self.gyroRateTopic.set(self.getRate())
+        self.gyroRateTopic.set(gyroRate)
 
         self.PID.setSetpoint(self.goal.radians())
 
         if self.mode == SwerveHeadingMode.DISABLED:
             output = rot
         elif self.mode == SwerveHeadingMode.HUMAN_DRIVERS:
-            # TODO: Validate if 15 deg/s is a reasonable threshold for disabling the controller.
-            bot_turning = abs(rot) > 0.1 or abs(self.getRate()) > wpimath.units.degreesToRadians(15)
+            # TODO: Validate if 40 deg/s is a reasonable threshold for disabling the controller.
+            bot_turning = abs(rot) > 0.1 or abs(gyroRate) > wpimath.units.degreesToRadians(40)
             bot_translating = speed > 0
             should_maintain_heading = not bot_turning and bot_translating
 

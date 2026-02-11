@@ -10,6 +10,7 @@ from wpimath.geometry import Rotation2d, Translation2d, Pose2d
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from hardware.swerveheading import SwerveHeadingController, SwerveHeadingMode
 import math
+import wpimath.filter
 
 
 class Drivetrain:
@@ -44,9 +45,11 @@ class Drivetrain:
             mode = SwerveHeadingMode.HUMAN_DRIVERS,
         )
 
+        self.roatationLimiter = wpimath.filter.SlewRateLimiter(constants.rotationSlewRate)
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)
+        self.newChassisSpeedsTopic = nt.getStructTopic("NewChassisSpeeds", ChassisSpeeds)
         self.desiredStatesTopic = nt.getStructArrayTopic("DesiredSwerveStates", SwerveModuleState)
         self.actualStatesTopic = nt.getStructArrayTopic("ActualSwerveStates", SwerveModuleState)
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
@@ -55,6 +58,9 @@ class Drivetrain:
 
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
+        
+        newTurnSpeed = self.roatationLimiter.calculate(newTurnSpeed)
+
         newChassisSpeeds = ChassisSpeeds(
             self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy, newTurnSpeed
         )
@@ -65,7 +71,8 @@ class Drivetrain:
         self.backLeftSwerveModule.setDesiredState(backLeft)
         self.backRightSwerveModule.setDesiredState(backRight)
 
-        self.desiredChassisSpeedsTopic.set(newChassisSpeeds)
+        self.desiredChassisSpeedsTopic.set(self.desiredChassisSpeeds)
+        self.newChassisSpeedsTopic.set(newChassisSpeeds)
         self.desiredStatesTopic.set([frontLeft, frontRight, backLeft, backRight])
         self.actualStatesTopic.set([
             self.frontLeftSwerveModule.getActualState(),

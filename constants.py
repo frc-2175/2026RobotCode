@@ -36,9 +36,14 @@ steerMotorReduction = 12
 driveMotorFreeSpeed = 5676
 """Speed of a drive motor under no load. Unit: RPM. (Source: REV NEO data sheet)"""
 
-maxSpeed: wpimath.units.meters_per_second = math.pi * wheelDiameter * driveMotorFreeSpeed / 60.0 / driveMotorReduction
+physicalMaxSpeed: wpimath.units.meters_per_second = math.pi * wheelDiameter * driveMotorFreeSpeed / 60.0 / driveMotorReduction
 """Maximum possible speed of a single drive wheel. Unit: m/s."""
+
+humanMaxSpeed = 4 #m/s
+humanMaxTurnSpeed = 2 * math.pi #rad/s
 
 headingControllerP = 1 / wpimath.units.degreesToRadians(15)
 headingControllerI = 0
 headingControllerD = 0
+
+rotationSlewRate = 4 * math.pi #rad/s

@@ -55,15 +55,17 @@ class Drivetrain:
 
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
-        self.desiredChassisSpeeds.omega = newTurnSpeed
+        newChassisSpeeds = ChassisSpeeds(
+            self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy, newTurnSpeed
+        )
 
-        frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(self.desiredChassisSpeeds)
+        frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(newChassisSpeeds)
         self.frontLeftSwerveModule.setDesiredState(frontLeft)
         self.frontRightSwerveModule.setDesiredState(frontRight)
         self.backLeftSwerveModule.setDesiredState(backLeft)
         self.backRightSwerveModule.setDesiredState(backRight)
 
-        self.desiredChassisSpeedsTopic.set(self.desiredChassisSpeeds)
+        self.desiredChassisSpeedsTopic.set(newChassisSpeeds)
         self.desiredStatesTopic.set([frontLeft, frontRight, backLeft, backRight])
         self.actualStatesTopic.set([
             self.frontLeftSwerveModule.getActualState(),

@@ -2,3 +2,4 @@
 __pycache__
 .vscode
 simgui*.json
+networktables.json

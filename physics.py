@@ -17,12 +17,11 @@ from wpimath.system.plant import DCMotor
 
 import constants
 from hardware.swervemodule import SwerveModule
-import ntutil
 from robot import MyRobot
 from sim.rotatingobject import RotatingObject, moiWheel
 from subsystems.drivetrain import Drivetrain
-import utils
-from utils import Vector2d
+from utils import mathutil, ntutil
+from utils.mathutil import Vector2d
 
 
 # =============================================================================
@@ -125,13 +124,13 @@ class DrivetrainSim:
         moduleDragForces: list[Vector2d[wpimath.units.newtons]] = []
         for angle, velocity in zip(moduleFieldAngles, self.moduleFieldVelocities):
             direction = Vector2d.fromMagnitudeAndDirection(1, angle)
-            alignmentFactor = utils.clamp(utils.remap(
+            alignmentFactor = mathutil.clamp(mathutil.remap(
                 direction.dot(velocity.normalized()),
                 (1, math.cos(wpimath.units.degreesToRadians(30))),
                 (0, 1),
             ), 0, 1)
-            velocityFactor = utils.remap(velocity.norm(), (0, 0.5), (0, 1))
-            dragForce = utils.lerp(0, self.slipFriction, min(alignmentFactor, velocityFactor))
+            velocityFactor = mathutil.remap(velocity.norm(), (0, 0.5), (0, 1))
+            dragForce = mathutil.lerp(0, self.slipFriction, min(alignmentFactor, velocityFactor))
             moduleDragForces.append(-Vector2d.fromMagnitudeAndDirection(dragForce, velocity.angle()))
 
         # Compute net force and torque on the robot by applying all four forces
@@ -345,7 +344,7 @@ class DrainingBatterySim(BatterySim2175):
         super().iterate(current_draw, dt)
 
     def nominalVoltage(self) -> wpimath.units.volts:
-        return utils.remap(
+        return mathutil.remap(
             self.charge,
             (DrainingBatterySim.FULL_BATTERY_AMP_HOURS, 0),
             (DrainingBatterySim.MAX_OUTPUT_VOLTS, DrainingBatterySim.MIN_OUTPUT_VOLTS),

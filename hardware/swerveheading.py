@@ -8,7 +8,7 @@ import wpimath.units
 from wpimath.geometry import Rotation2d
 
 import constants
-import ntutil
+from utils import ntutil
 
 
 class SwerveHeadingMode(Enum):

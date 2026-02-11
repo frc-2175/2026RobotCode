@@ -3,7 +3,7 @@ import rev
 from hardware.swervemodule import SwerveModule
 import navx
 import constants
-import ntutil
+import utils.ntutil as ntutil
 from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kinematics
 import wpimath.units
 from wpimath.geometry import Rotation2d, Translation2d, Pose2d

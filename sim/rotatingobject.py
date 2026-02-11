@@ -1,7 +1,6 @@
 import wpimath.units
 
-import ntutil
-import utils
+from utils import mathutil, ntutil
 
 
 class RotatingObject:
@@ -42,7 +41,7 @@ class RotatingObject:
     def iterate(self, inputTorque: wpimath.units.newton_meters, dt: float):
         # Compute total torque (output plus drag / friction)
         viscousDragTorque = self.viscousDrag * -self.velocity
-        frictionTorque = utils.sign_or_zero(-self.velocity) * self.friction # already Nm
+        frictionTorque = mathutil.sign_or_zero(-self.velocity) * self.friction # already Nm
         totalTorque = inputTorque + viscousDragTorque + frictionTorque
 
         # Torque -> accleration -> updated velocity.
@@ -54,7 +53,7 @@ class RotatingObject:
         # torque applied, it will take effect one tick late.
         angularAcceleration = totalTorque / self.moi # rad/(s^2)
         newVelocity = self.velocity + (angularAcceleration * dt)
-        if self.velocity != 0 and utils.sign(newVelocity) != utils.sign(self.velocity):
+        if self.velocity != 0 and mathutil.sign(newVelocity) != mathutil.sign(self.velocity):
             self.velocity = 0
         else:
             self.velocity = newVelocity

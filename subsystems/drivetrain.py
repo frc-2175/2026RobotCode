@@ -8,7 +8,7 @@ from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kin
 import wpimath.units
 from wpimath.geometry import Rotation2d, Translation2d, Pose2d
 from wpimath.estimator import SwerveDrive4PoseEstimator
-from hardware.swerveheading import SwerveHeadingController, SwerveHeadingMode
+from utils.swerveheading import SwerveHeadingController, SwerveHeadingMode
 import math
 import wpimath.filter
 

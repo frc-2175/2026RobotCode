@@ -20,8 +20,11 @@ class SlewRateLimiter2D(Generic[Unit]):
         # - Save that to lastOutput.
         # - Return that value to the outer code.
         # There are automated tests for this that you can run.
-        x :Vector2d = Vector2d(target.x-self.lastOutput.x, target.y - self.lastOutput.y)
+        x :Vector2d = target - self.lastOutput
         xLength = math.sqrt(x.x**2 + x.y**2)
-        r : Vector2d = x * (self.rateLimit / xLength)
+        if xLength < self.rateLimit:
+            r: Vector2d = x
+        else:
+            r : Vector2d = x * (self.rateLimit / xLength)
         self.lastOutput = self.lastOutput + r
         return self.lastOutput

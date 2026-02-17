@@ -1,5 +1,6 @@
 import wpimath.units
 from typing import Generic, TypeVar
+import math
 
 from utils.mathutil import Vector2d
 
@@ -19,4 +20,7 @@ class SlewRateLimiter2D(Generic[Unit]):
         # - Save that to lastOutput.
         # - Return that value to the outer code.
         # There are automated tests for this that you can run.
-        pass
+        self.rValue = Vector2d(target.x-target.x, self.lastOutput.y - self.lastOutput.y)
+        self.rValue = math.sqrt(self.rValue.x**2 + self.rValue.y**2)
+        self.scaleAmount = self.rValue / self.rateLimit
+        self.lastOutput = self.lastOutput * self.scaleAmount

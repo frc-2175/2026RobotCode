@@ -11,6 +11,8 @@ from wpimath.estimator import SwerveDrive4PoseEstimator
 from utils.swerveheading import SwerveHeadingController, SwerveHeadingMode
 import math
 import wpimath.filter
+from utils.slew2d import SlewRateLimiter2D
+from utils.mathutil import Vector2d
 
 
 class Drivetrain:
@@ -46,6 +48,8 @@ class Drivetrain:
         )
 
         self.roatationLimiter = wpimath.filter.SlewRateLimiter(constants.rotationSlewRate)
+        #TODO Acutual Rate Limit
+        self.velocityLimiter = SlewRateLimiter2D(0.5)
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)
@@ -58,11 +62,12 @@ class Drivetrain:
 
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
+        newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
         
         newTurnSpeed = self.roatationLimiter.calculate(newTurnSpeed)
 
         newChassisSpeeds = ChassisSpeeds(
-            self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy, newTurnSpeed
+            newVelocity.x, newVelocity.y, newTurnSpeed
         )
 
         frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(newChassisSpeeds)

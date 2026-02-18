@@ -48,3 +48,8 @@ headingControllerD = 0
 
 rotationSlewRate = 4 * math.pi #rad/s
 maxAcceleration = 20 #m/s/s
+
+intakeSpeed = 1
+shooterSpeed = 1
+rollerSpeed = 1
+indexerSpeed = 1

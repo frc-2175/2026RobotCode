@@ -16,3 +16,19 @@ class IntakeAndShooter:
         self.leftIntakeMotor.configure(configs.intakeMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rightIntakeMotor.configure(configs.intakeFollowerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rollerMotor.configure(configs.rollerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
+
+    
+    def setIntakeSpeed(self, intakeSpeed: float):
+        self.leftIntakeMotor.set(intakeSpeed)
+
+    def setRollerSpeed(self, rollerSpeed: float):
+        self.rollerMotor.set(rollerSpeed)
+
+    def setShooterSpeed(self, shooterMotorSpeed: float):
+        self.leftShooterMotor.set(shooterMotorSpeed)
+
+    def setIndexerSpeed(self, indexerSpeed: float):
+        self.indexerMotor.set(indexerSpeed)
+
+    def periodic(self):
+        pass

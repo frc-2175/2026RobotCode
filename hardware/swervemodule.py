@@ -46,12 +46,12 @@ class SwerveModule:
         provided should NOT be modified to account for angle offsets. (In other
         words, pass the raw SwerveModuleState straight out of kinematics.)
         """
-        correctedAngle = state.angle - Rotation2d(self.angleOffset)
+        stateLocal = SwerveModuleState(state.speed, Rotation2d(state.angle.radians() - self.angleOffset))
         encoderRotation = Rotation2d(self.steerEncoder.getPosition())
-        state.optimize(encoderRotation)
-        state.cosineScale(encoderRotation)
-        self.drivePidController.setSetpoint(state.speed, rev.SparkLowLevel.ControlType.kVelocity)
-        self.steerPidController.setSetpoint(correctedAngle.radians(), rev.SparkLowLevel.ControlType.kPosition)
+        stateLocal.optimize(encoderRotation)
+        stateLocal.cosineScale(encoderRotation)
+        self.drivePidController.setSetpoint(stateLocal.speed, rev.SparkLowLevel.ControlType.kVelocity)
+        self.steerPidController.setSetpoint(stateLocal.angle.radians(), rev.SparkLowLevel.ControlType.kPosition)
 
     def getActualState(self) -> SwerveModuleState:
         """

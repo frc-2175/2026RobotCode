@@ -18,11 +18,10 @@ import ids
 
 class Drivetrain:
     def __init__(self):
-        #TODO Add Correct Angle Offsets
-        self.frontLeftSwerveModule = SwerveModule(ids.frontLeftDrive, ids.frontLeftSteer, 0)
+        self.frontLeftSwerveModule = SwerveModule(ids.frontLeftDrive, ids.frontLeftSteer, -3 * math.pi/2)
         self.frontRightSwerveModule = SwerveModule(ids.frontRightDrive, ids.frontRightSteer, 0)
-        self.backLeftSwerveModule = SwerveModule(ids.backLeftDrive, ids.backLeftSteer, 0)
-        self.backRightSwerveModule = SwerveModule(ids.backRightDrive, ids.backRightSteer, 0)
+        self.backLeftSwerveModule = SwerveModule(ids.backLeftDrive, ids.backLeftSteer, -math.pi)
+        self.backRightSwerveModule = SwerveModule(ids.backRightDrive, ids.backRightSteer, -math.pi/2)
         self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
         self.gyro = navx.AHRS.create_spi()
 
@@ -64,7 +63,7 @@ class Drivetrain:
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
         newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
-        
+
         newTurnSpeed = self.roatationLimiter.calculate(newTurnSpeed)
 
         newChassisSpeeds = ChassisSpeeds(

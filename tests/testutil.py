@@ -5,6 +5,10 @@ def expecteq(actual, expected):
   if actual != expected:
     raise RuntimeError(f"expected {expected} but got {actual}")
 
+def expectclose(actual, expected, epsilon):
+  if abs(actual - expected) >= epsilon:
+    raise RuntimeError(f"expected {expected} but got {actual}")
+
 def expecterror(f, error: Type[BaseException] = Exception):
   try:
     f()

@@ -273,7 +273,7 @@ class SwerveModuleSim:
     ):
         # Iterate motor controllers
         driveForwardDir = Vector2d.fromMagnitudeAndDirection(1, self.getState().angle)
-        driveVelocity: wpimath.units.meters_per_second = max(0, moduleVelocityRobot.dot(driveForwardDir))
+        driveVelocity: wpimath.units.meters_per_second = moduleVelocityRobot.dot(driveForwardDir)
         self.driveSparkSim.iterate(driveVelocity, vbus, dt)
         self.steerSparkSim.iterate(self.steerPhysics.getVelocity(), vbus, dt)
 

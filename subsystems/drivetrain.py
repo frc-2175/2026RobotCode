@@ -13,15 +13,16 @@ import math
 import wpimath.filter
 from utils.slew2d import SlewRateLimiter2D
 from utils.mathutil import Vector2d
+import ids
 
 
 class Drivetrain:
     def __init__(self):
-        self.frontLeftSwerveModule = SwerveModule(23, 17, 0)
-        self.frontRightSwerveModule = SwerveModule(22, 10, 0)
-        self.backLeftSwerveModule = SwerveModule(9, 12, 0)
-        self.backRightSwerveModule = SwerveModule(14, 24, 0)
-
+        #TODO Add Correct Angle Offsets
+        self.frontLeftSwerveModule = SwerveModule(ids.frontLeftDrive, ids.frontLeftSteer, 0)
+        self.frontRightSwerveModule = SwerveModule(ids.frontRightDrive, ids.frontRightSteer, 0)
+        self.backLeftSwerveModule = SwerveModule(ids.backLeftDrive, ids.backLeftSteer, 0)
+        self.backRightSwerveModule = SwerveModule(ids.backRightDrive, ids.backRightSteer, 0)
         self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
         self.gyro = navx.AHRS.create_spi()
 

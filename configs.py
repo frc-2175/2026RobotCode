@@ -3,6 +3,7 @@ import rev
 from wpilib import RobotBase
 
 import constants
+import ids
 
 
 # =============================================================================
@@ -47,3 +48,27 @@ else:
     steerMotorConfig.closedLoop.pid(2, 0, 0.2)
 steerMotorConfig.closedLoop.positionWrappingEnabled(True)
 steerMotorConfig.closedLoop.positionWrappingInputRange(-math.pi, math.pi)
+
+shooterMotorConfig = rev.SparkMaxConfig()
+shooterMotorConfig.smartCurrentLimit(40)
+shooterMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kCoast)
+
+shooterMotorFollowerConfig = rev.SparkMaxConfig()
+shooterMotorFollowerConfig.apply(shooterMotorConfig)
+shooterMotorFollowerConfig.follow(ids.leftShooter, True)
+
+indexerMotorConfig = rev.SparkMaxConfig()
+indexerMotorConfig.smartCurrentLimit(40)
+indexerMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
+
+intakeMotorConfig = rev.SparkMaxConfig()
+intakeMotorConfig.smartCurrentLimit(40)
+intakeMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
+
+intakeFollowerMotorConfig = rev.SparkMaxConfig()
+intakeFollowerMotorConfig.apply(intakeMotorConfig)
+intakeFollowerMotorConfig.follow(ids.leftIntake, True)
+
+rollerMotorConfig = rev.SparkMaxConfig()
+rollerMotorConfig.smartCurrentLimit(40)
+rollerMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)

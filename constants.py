@@ -47,3 +47,4 @@ headingControllerI = 0
 headingControllerD = 0
 
 rotationSlewRate = 4 * math.pi #rad/s
+maxAcceleration = 20 #m/s/s

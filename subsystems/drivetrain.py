@@ -49,7 +49,7 @@ class Drivetrain:
 
         self.roatationLimiter = wpimath.filter.SlewRateLimiter(constants.rotationSlewRate)
         #TODO Acutual Rate Limit
-        self.velocityLimiter = SlewRateLimiter2D(0.5)
+        self.velocityLimiter = SlewRateLimiter2D(constants.maxAcceleration*1/50)
 
         nt = ntutil.Folder("Drivetrain")
         self.desiredChassisSpeedsTopic = nt.getStructTopic("DesiredChassisSpeeds", ChassisSpeeds)

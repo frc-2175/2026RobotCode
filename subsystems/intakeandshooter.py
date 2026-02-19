@@ -1,6 +1,7 @@
 import rev
 import configs
 import ids
+import utils.ntutil as ntutil
 class IntakeAndShooter:
     def __init__(self):
         self.leftShooterMotor = rev.SparkMax(ids.leftShooter, rev.SparkLowLevel.MotorType.kBrushless)
@@ -17,6 +18,19 @@ class IntakeAndShooter:
         self.rightIntakeMotor.configure(configs.intakeFollowerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rollerMotor.configure(configs.rollerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
 
+        self.shooterEncoder = self.leftShooterMotor.getEncoder()
+        self.intakeEncoder = self.leftIntakeMotor.getEncoder()
+        self.indexerEncoder = self.indexerMotor.getEncoder()
+        self.rollerEncoder = self.rollerMotor.getEncoder()
+
+        nt = ntutil.Folder("IntakeAndShooter")
+        self.intakePositionTopic = nt.getFloatTopic("IntakePosition",)
+        self.shooterSpeedTopic = nt.getFloatTopic("ShooterSpeed")
+        self.indexerSpeedTopic = nt.getFloatTopic("IndexerSpeed")
+        self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
+
+        
+
     
     def setIntakeSpeed(self, intakeSpeed: float):
         self.leftIntakeMotor.set(intakeSpeed)
@@ -31,4 +45,7 @@ class IntakeAndShooter:
         self.indexerMotor.set(indexerSpeed)
 
     def periodic(self):
-        pass
+        self.shooterSpeedTopic.set(self.shooterEncoder.getVelocity())
+        self.intakePositionTopic.set(self.intakeEncoder.getPosition())
+        self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
+        self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())

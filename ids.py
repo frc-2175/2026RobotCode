@@ -1,14 +1,14 @@
-leftShooter = 1
+leftShooter = 5
 
-rightShooter = 2
+rightShooter = 8
 
-indexerMotor = 3
+indexerMotor = 4
 
-leftIntake = 4
+leftIntake = 6
 
-rightIntake = 5
+rightIntake = 1
 
-rollerMotor = 6
+rollerMotor = 11
 
 frontLeftDrive = 23
 

@@ -26,7 +26,7 @@ swerveModulePositions = (
 )
 """The positions of each swerve module relative to the robot origin, in the order FL/FR/BL/BR"""
 
-# TODO: Verify the gear ratio used on this year's bot
+
 driveMotorReduction = 4.71
 """"High speed" gear ratio. Unit: ratio (N:1). (Source: REV MAXSwerve product page)"""
 
@@ -46,7 +46,7 @@ headingControllerP = 1 / wpimath.units.degreesToRadians(15)
 headingControllerI = 0
 headingControllerD = 0
 
-rotationSlewRate = 4 * math.pi #rad/s
+rotationSlewRate = 8 * math.pi #rad/s
 maxAcceleration = 20 #m/s/s
 
 intakeSpeed = 0.1

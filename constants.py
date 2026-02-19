@@ -53,3 +53,6 @@ intakeSpeed = 1
 shooterSpeed = 1
 rollerSpeed = 1
 indexerSpeed = 1
+
+intakeMotorReduction = 20
+shooterMotorRatio = 11/24

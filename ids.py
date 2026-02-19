@@ -10,18 +10,18 @@ rightIntake = 1
 
 rollerMotor = 11
 
-frontLeftDrive = 23
+frontLeftDrive = 9
 
-frontLeftSteer = 17
+frontLeftSteer = 12
 
-frontRightDrive = 22
+frontRightDrive = 14
 
-frontRightSteer = 10
+frontRightSteer = 24
 
-backLeftDrive = 9
+backLeftDrive = 23
 
-backLeftSteer = 12
+backLeftSteer = 17
 
-backRightDrive = 14
+backRightDrive = 22
 
-backRightSteer = 24
+backRightSteer = 10

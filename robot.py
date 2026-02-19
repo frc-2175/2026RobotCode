@@ -20,36 +20,34 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def teleopPeriodic(self):
-        x = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)* constants.humanMaxSpeed 
-        y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
-        t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
-        #x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
-        #y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
-        #t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
+        #x = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)* constants.humanMaxSpeed 
+       # y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
+      #  t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
+        x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
+        y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
+        t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         self.drivetrain.drive(x, y, t)
 
         #Intake
         if self.gamepad.getRawButton(4):
-            self.intakeandshooter.setIntakeSpeed(constants.intakeSpeed)
+            self.intakeandshooter.setIntakeAngle(constants.intakeOutAngle)
         elif self.gamepad.getRawButton(1):
-            self.intakeandshooter.setIntakeSpeed(-constants.intakeSpeed)
-        else:
-            self.intakeandshooter.setIntakeSpeed(0)
+            self.intakeandshooter.setIntakeAngle(0)
 
         #Shoot
-        if self.gamepad.getRawButton(6):
+        if self.gamepad.getRawButton(5):
             self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
         else:
             self.intakeandshooter.setShooterSpeed(0)
 
         #Roller
-        if self.gamepad.getRawButton(3):
+        if self.gamepad.getRawAxis(4):
             self.intakeandshooter.setRollerSpeed(constants.rollerSpeed)
         else:
             self.intakeandshooter.setRollerSpeed(0)
 
         #Indexer
-        if self.gamepad.getRawButton(5):
+        if self.gamepad.getRawAxis(4):
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
         else:
             self.intakeandshooter.setIndexerSpeed(0)

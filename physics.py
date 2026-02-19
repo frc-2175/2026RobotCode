@@ -20,6 +20,7 @@ from hardware.swervemodule import SwerveModule
 from robot import MyRobot
 from sim.rotatingobject import RotatingObject, moiWheel
 from subsystems.drivetrain import Drivetrain
+from subsystems.intakeandshooter import IntakeAndShooter
 from utils import mathutil, ntutil
 from utils.mathutil import Vector2d
 
@@ -49,12 +50,17 @@ class PhysicsEngine(pyfrc.physics.core.PhysicsEngine):
             slipFriction=128,
             nt=simFolder.getFolder("Drivetrain"),
         )
+        self.intakeAndShooter = IntakeAndShooterSim(
+            robot.intakeandshooter,
+            nt=simFolder.getFolder("IntakeAndShooter"),
+        )
 
     def update_sim(self, now: float, tm_diff: float):
         vbus = RobotController.getBatteryVoltage()
         self.vbusTopic.set(vbus)
 
         self.drivetrain.iterate(vbus, tm_diff)
+        self.intakeAndShooter.iterate(vbus, tm_diff)
 
         self.poseTopic.set(self.drivetrain.getPose())
         # self.swerveStatesTopic.set(list(self.drivetrain.get_module_states()))
@@ -288,6 +294,26 @@ class SwerveModuleSim:
 
     def getCurrentDraw(self) -> wpimath.units.amperes:
         return self.driveSparkSim.getMotorCurrent() + self.steerSparkSim.getMotorCurrent()
+
+
+class IntakeAndShooterSim:
+    def __init__(
+        self,
+        subsystem: IntakeAndShooter,
+        nt: ntutil.Folder = ntutil.DummyFolder(),
+    ):
+        self.realSubsystem = subsystem
+        self.shooterMotorsSim = SparkMaxSim2175(subsystem.leftShooterMotor, DCMotor.NEO(2), nt=nt.getFolder("ShooterMotors"))
+        self.indexerMotorSim = SparkMaxSim2175(subsystem.indexerMotor, DCMotor.NEO(1), nt=nt.getFolder("IndexerMotor"))
+        self.intakeMotorsSim = SparkMaxSim2175(subsystem.leftIntakeMotor, DCMotor.NEO(2), nt=nt.getFolder("IntakeMotors"))
+        self.rollerMotorSim = SparkMaxSim2175(subsystem.rollerMotor, DCMotor.NEO550(1), nt=nt.getFolder("RollerMotor"))
+
+    def iterate(self, vbus: float, dt: float):
+        # TODO: Supply velocities
+        self.shooterMotorsSim.iterate(0, vbus, dt)
+        self.indexerMotorSim.iterate(0, vbus, dt)
+        self.intakeMotorsSim.iterate(0, vbus, dt)
+        self.rollerMotorSim.iterate(0, vbus, dt)
 
 
 class BatterySim2175():

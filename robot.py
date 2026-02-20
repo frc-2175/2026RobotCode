@@ -30,12 +30,10 @@ class MyRobot(wpilib.TimedRobot):
 #TODO -Make the intake adjustable but add buttons to make them snap to defult states
 #       -Add a reset heading button to the bot
         #-
-        leftStick = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)
+        leftStick = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1) * 1/2
         #Intake (LS)
-        if self.gamepad.getRawAxis(1) > 0:
+        if self.gamepad.getRawAxis(1):
             self.intakeandshooter.changeIntakePosition(leftStick)
-        elif self.gamepad.getRawAxis(1) < 0:
-            self.intakeandshooter.changeIntakePosition(-leftStick)
 
         #Shoot (LB)
         if self.gamepad.getRawButton(5):

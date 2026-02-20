@@ -57,4 +57,4 @@ indexerSpeed = 1
 intakeMotorReduction = 20
 shooterMotorRatio = 11/24
 
-intakeOutAngle = wpimath.units.degreesToRadians(122)
+intakeOutAngle = wpimath.units.degreesToRadians(115)

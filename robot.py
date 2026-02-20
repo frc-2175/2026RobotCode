@@ -27,27 +27,35 @@ class MyRobot(wpilib.TimedRobot):
         y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
         self.drivetrain.drive(x, y, t)
+#TODO -Make the intake adjustable but add buttons to make them snap to defult states
+#       -Add a reset heading button to the bot
+        #-
+        leftStick = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)
+        #Intake (LS)
+        if self.gamepad.getRawAxis(1) > 0:
+            self.intakeandshooter.changeIntakePosition(leftStick)
+        elif self.gamepad.getRawAxis(1) < 0:
+            self.intakeandshooter.changeIntakePosition(-leftStick)
 
-        #Intake
-        if self.gamepad.getRawButton(4):
-            self.intakeandshooter.setIntakeAngle(constants.intakeOutAngle)
-        elif self.gamepad.getRawButton(1):
-            self.intakeandshooter.setIntakeAngle(0)
-
-        #Shoot
+        #Shoot (LB)
         if self.gamepad.getRawButton(5):
             self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
         else:
             self.intakeandshooter.setShooterSpeed(0)
 
-        #Roller
-        if self.gamepad.getRawAxis(4):
+        #Roller(RS)
+        #The proper axis for the logitech controller is 5
+        if self.gamepad.getRawAxis(5) < -0.1:
             self.intakeandshooter.setRollerSpeed(constants.rollerSpeed)
+        elif self.gamepad.getRawAxis(5) > 0.1:
+            self.intakeandshooter.setRollerSpeed(-constants.rollerSpeed)
         else:
             self.intakeandshooter.setRollerSpeed(0)
 
-        #Indexer
-        if self.gamepad.getRawAxis(4):
+        #Indexer(RS)
+        if self.gamepad.getRawAxis(5) < -0.1:
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
+        elif self.gamepad.getRawAxis(5) > 0.1:
+            self.intakeandshooter.setIndexerSpeed(-constants.indexerSpeed)
         else:
             self.intakeandshooter.setIndexerSpeed(0)

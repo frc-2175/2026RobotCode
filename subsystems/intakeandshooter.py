@@ -3,6 +3,8 @@ import configs
 import ids
 import utils.ntutil as ntutil
 import wpimath.units
+from utils import mathutil
+import constants
 class IntakeAndShooter:
     def __init__(self):
         self.leftShooterMotor = rev.SparkMax(ids.leftShooter, rev.SparkLowLevel.MotorType.kBrushless)
@@ -32,11 +34,14 @@ class IntakeAndShooter:
         self.indexerSpeedTopic = nt.getFloatTopic("IndexerSpeed")
         self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
 
+        self.desiredIntakePosition = 0
+
         
 
     
-    def setIntakeAngle(self, intakeAngle: wpimath.units.radians):
-        self.intakeController.setSetpoint(intakeAngle, rev.SparkLowLevel.ControlType.kPosition)
+    def changeIntakePosition(self, intakeAngle: wpimath.units.radians):
+        self.desiredIntakePosition = self.desiredIntakePosition + intakeAngle
+        self.desiredIntakePosition = (mathutil.clamp(self.desiredIntakePosition, 0, constants.intakeOutAngle))
 
     def setRollerSpeed(self, rollerSpeed: float):
         self.rollerMotor.set(rollerSpeed)
@@ -48,6 +53,8 @@ class IntakeAndShooter:
         self.indexerMotor.set(indexerSpeed)
 
     def periodic(self):
+        self.intakeController.setSetpoint(self.desiredIntakePosition, rev.SparkLowLevel.ControlType.kPosition)
+
         self.shooterSpeedTopic.set(self.shooterEncoder.getVelocity())
         self.intakePositionTopic.set(self.intakeEncoder.getPosition())
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())

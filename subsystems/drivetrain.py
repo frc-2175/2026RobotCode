@@ -110,8 +110,8 @@ class Drivetrain:
             xSpeed,
             ySpeed,
             turnSpeed,
-            self.gyro.getRotation2d()
-            )
+            self.odometry.getEstimatedPosition().rotation()
+        )
         
     def getHeading(self) -> Rotation2d:
         return self.odometry.getEstimatedPosition().rotation()

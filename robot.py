@@ -45,8 +45,8 @@ class MyRobot(wpilib.TimedRobot):
         rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1)
         runIndexerOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
 
-        runFlywheel:bool = self.gamepad.getRawButton(6)
-        runIndexerIn:bool = self.gamepad.getRawButton(5)
+        runFlywheel:bool = self.gamepad.getRawButton(5)
+        runIndexerIn:bool = self.gamepad.getRawButton(6)
         rollerSpeed:float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
         
         #Intake (LS)

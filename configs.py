@@ -50,7 +50,7 @@ steerMotorConfig.closedLoop.positionWrappingEnabled(True)
 steerMotorConfig.closedLoop.positionWrappingInputRange(-math.pi, math.pi)
 
 shooterMotorConfig = rev.SparkMaxConfig()
-shooterMotorConfig.smartCurrentLimit(40)
+shooterMotorConfig.smartCurrentLimit(55)
 shooterMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kCoast)
 shooterMotorConfig.inverted(True)
 shooterMotorConfig.encoder.positionConversionFactor(constants.shooterMotorRatio)

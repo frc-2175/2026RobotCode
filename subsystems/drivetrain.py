@@ -57,6 +57,7 @@ class Drivetrain:
         self.desiredStatesTopic = nt.getStructArrayTopic("DesiredSwerveStates", SwerveModuleState)
         self.actualStatesTopic = nt.getStructArrayTopic("ActualSwerveStates", SwerveModuleState)
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
+        self.robotPoseTopic = nt.getStructTopic("RobotPose", Pose2d)
 
     def periodic(self):
 
@@ -97,7 +98,7 @@ class Drivetrain:
             )
         )
 
-        #.set(self.odometry.getEstimatedPosition())
+        self.robotPoseTopic.set(self.odometry.getEstimatedPosition())
 
     def drive(
         self,
@@ -119,4 +120,9 @@ class Drivetrain:
         return wpimath.units.degreesToRadians(self.gyro.getRate())
     
     def resetHeading(self, angle:float):
-        self.odometry.resetRotation(Rotation2d(angle))
+        # HACK: For some reason resetRotation(0) seems to be doubling the current
+        # rotation, not actually setting it to zero. This makes literally no sense.
+        # resetPose does what we want though so we are using it as a workaround.
+        pose = self.odometry.getEstimatedPosition()
+        self.odometry.resetPose(Pose2d(pose.x, pose.y, Rotation2d(angle)))
+        # self.odometry.resetRotation(Rotation2d(angle))

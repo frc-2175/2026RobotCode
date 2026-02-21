@@ -21,8 +21,8 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         #x = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)* constants.humanMaxSpeed 
-       # y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
-      #  t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
+        #y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
+        #t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
         x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
         y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
@@ -31,6 +31,8 @@ class MyRobot(wpilib.TimedRobot):
 #       -Add a reset heading button to the bot
         #-
         leftStick = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1) * 1/4
+        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1)
+        leftTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1)
         #Intake (LS)
         self.intakeandshooter.changeIntakePosition(leftStick)
 
@@ -50,9 +52,13 @@ class MyRobot(wpilib.TimedRobot):
             self.intakeandshooter.setRollerSpeed(0)
 
         #Indexer(RT/LT)
-        if self.gamepad.getRawAxis(3) > 0:
+        if rightTrigger > 0:
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
-        elif self.gamepad.getRawAxis(2) > 0:
+        elif leftTrigger > 0:
             self.intakeandshooter.setIndexerSpeed(-constants.indexerSpeed)
         else:
             self.intakeandshooter.setIndexerSpeed(0)
+
+        #Reset Rotation
+        if self.leftJoystick.getRawAxis(8):
+            self.drivetrain.resetHeading(0)

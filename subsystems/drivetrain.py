@@ -117,3 +117,6 @@ class Drivetrain:
     
     def getHeadingRate(self) -> wpimath.units.radians_per_second:
         return wpimath.units.degreesToRadians(self.gyro.getRate())
+    
+    def resetHeading(self, angle:float):
+        self.odometry.resetRotation(Rotation2d(angle))

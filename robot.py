@@ -4,6 +4,11 @@ from subsystems.intakeandshooter import IntakeAndShooter
 import constants
 import wpimath
 import math
+import choreo
+from utils import ntutil
+import os
+from typing import List, Callable, Dict
+from wpilib import Alert
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -21,6 +26,18 @@ class MyRobot(wpilib.TimedRobot):
         # continuously updating our estimated pose anyway. But for now this allows us
         # to have a sane forward direction if we go straight into teleop.
         self.drivetrain.resetHeading(self.driverForwardAngle())
+
+        #Auto
+        self.trajectoryChooser = wpilib.SendableChooser()
+        self.trajectoryAlerts: List[Alert] = []
+        self.loadChoreoTrajectories()
+
+        self.autoEvents: Dict[str, Callable[[], None]] = {
+            "test1": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
+        }
+
+        #Alerts
+        self.badTrajectoryAlert = Alert("Choreo path not found", Alert.AlertType.kError)
 
     def robotPeriodic(self):
         self.drivetrain.periodic()
@@ -82,3 +99,29 @@ class MyRobot(wpilib.TimedRobot):
             return math.pi
         else:
             return 0
+        
+
+    def loadChoreoTrajectories(self):
+        choreoDir = os.path.join(wpilib.getDeployDirectory(), "choreo")
+        for idx, filename in enumerate(os.listdir(choreoDir)):
+            if not os.path.isfile(os.path.join(choreoDir, filename)):
+                continue
+            if not filename.endswith(".traj"):
+                continue
+            autoName = filename.removesuffix(".traj")
+
+            try:
+                # Check the path we're trying to load actually exists before handing to Choreo
+                if os.path.exists(os.path.join(wpilib.getDeployDirectory(), "choreo", autoName + ".traj")):
+                    trajectory = choreo.load_swerve_trajectory(autoName)
+                    self.trajectoryChooser.addOption(autoName, trajectory)
+
+                    for event in trajectory.events:
+                        if event.event not in self.autoEvents:
+                            alert = Alert(f"Invalid event in \"{autoName}\": {event.event}", Alert.AlertType.kWarning)
+                            alert.set(True)
+                            self.trajectoryAlerts.append(alert)
+                else:
+                    ntutil.logAlert(self.badTrajectoryAlert, autoName)
+            except ValueError as err:
+                ntutil.logAlert(self.badTrajectoryAlert, err)

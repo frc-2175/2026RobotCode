@@ -8,7 +8,8 @@ import choreo
 from utils import ntutil
 import os
 from typing import List, Callable, Dict
-from wpilib import Alert
+from wpilib import Alert, SmartDashboard
+
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -30,12 +31,13 @@ class MyRobot(wpilib.TimedRobot):
         #Auto
         self.trajectoryChooser = wpilib.SendableChooser()
         self.trajectoryAlerts: List[Alert] = []
-        self.loadChoreoTrajectories()
+        
+        SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
         self.autoEvents: Dict[str, Callable[[], None]] = {
-            "test1": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
+            "EventTest": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
         }
-
+        self.loadChoreoTrajectories()
         #Alerts
         self.badTrajectoryAlert = Alert("Choreo path not found", Alert.AlertType.kError)
 
@@ -111,17 +113,13 @@ class MyRobot(wpilib.TimedRobot):
             autoName = filename.removesuffix(".traj")
 
             try:
-                # Check the path we're trying to load actually exists before handing to Choreo
-                if os.path.exists(os.path.join(wpilib.getDeployDirectory(), "choreo", autoName + ".traj")):
-                    trajectory = choreo.load_swerve_trajectory(autoName)
-                    self.trajectoryChooser.addOption(autoName, trajectory)
+                trajectory = choreo.load_swerve_trajectory(autoName)
+                self.trajectoryChooser.addOption(autoName, trajectory)
 
-                    for event in trajectory.events:
-                        if event.event not in self.autoEvents:
-                            alert = Alert(f"Invalid event in \"{autoName}\": {event.event}", Alert.AlertType.kWarning)
-                            alert.set(True)
-                            self.trajectoryAlerts.append(alert)
-                else:
-                    ntutil.logAlert(self.badTrajectoryAlert, autoName)
+                for event in trajectory.events:
+                    if event.event not in self.autoEvents:
+                        alert = Alert(f"Invalid event in \"{autoName}\": {event.event}", Alert.AlertType.kWarning)
+                        alert.set(True)
+                        self.trajectoryAlerts.append(alert)
             except ValueError as err:
                 ntutil.logAlert(self.badTrajectoryAlert, err)

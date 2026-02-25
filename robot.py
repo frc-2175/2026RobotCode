@@ -9,6 +9,10 @@ from utils import ntutil
 import os
 from typing import List, Callable, Dict
 from wpilib import Alert, SmartDashboard
+from utils.swerveheading import SwerveHeadingMode
+import choreo.trajectory
+from wpimath.geometry import Pose2d
+from wpimath.kinematics import ChassisSpeeds
 
 
 class MyRobot(wpilib.TimedRobot):
@@ -30,7 +34,16 @@ class MyRobot(wpilib.TimedRobot):
 
         #Auto
         self.trajectoryChooser = wpilib.SendableChooser()
+        self.trajectory: choreo.trajectory.SwerveTrajectory | None = None
         self.trajectoryAlerts: List[Alert] = []
+        self.autoTimer = wpilib.Timer()
+        self.previousAutoTime: float = 0
+
+        autont = ntutil.getFolder("Auto")
+        self.autoTimerTopic = autont.getFloatTopic("Timer")
+        self.autoTrajectoryTopic = autont.getStructArrayTopic("Trajectory", Pose2d)
+        self.autoChassisSpeedsTopic = autont.getStructTopic("ChassisSpeeds", ChassisSpeeds)
+        self.autoPoseTopic = autont.getStructTopic("Pose", Pose2d)
         
         SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
@@ -44,6 +57,46 @@ class MyRobot(wpilib.TimedRobot):
     def robotPeriodic(self):
         self.drivetrain.periodic()
         self.intakeandshooter.periodic()
+        self.updateTrajectoryTelemetry()
+
+    def autonomousInit(self):
+        self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.DISABLED)
+
+        self.trajectory = self.trajectoryChooser.getSelected()
+        if self.trajectory:
+            self.autoTimer.restart()
+            self.previousAutoTime = 0
+            firstSample = self.trajectory.sample_at(0, self.isRedAlliance())
+            if firstSample:
+                self.drivetrain.resetPose(firstSample.get_pose())
+
+    def autonomousPeriodic(self):
+        currentAutoTime = self.autoTimer.get()
+        self.autoTimerTopic.set(currentAutoTime)
+
+        if self.trajectory:
+            sample = self.trajectory.sample_at(self.autoTimer.get(), self.isRedAlliance())
+
+            if sample:
+                self.drivetrain.followChoreoSample(sample)
+                self.autoChassisSpeedsTopic.set(sample.get_chassis_speeds())
+                self.autoPoseTopic.set(sample.get_pose())
+
+                for event in self.trajectory.events:
+                    if self.previousAutoTime <= event.timestamp < currentAutoTime:
+                        if event.event in self.autoEvents:
+                            command = self.autoEvents[event.event]
+                            command()
+                        else:
+                            ntutil.log(f"Autonomous event not recognized; skipping: {event.event}")
+            else:
+                self.drivetrain.drive(0, 0, 0)
+
+        self.previousAutoTime = currentAutoTime
+
+    def teleopInit(self):
+        self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
+        #TODO Reset Heading Controller
 
 
     def teleopPeriodic(self):
@@ -61,7 +114,7 @@ class MyRobot(wpilib.TimedRobot):
         self.drivetrain.drive(x, y, t)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
-        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1)
+        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1)#Unused
         runIndexerOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
 
         runFlywheel:bool = self.gamepad.getRawButton(5)
@@ -123,3 +176,16 @@ class MyRobot(wpilib.TimedRobot):
                         self.trajectoryAlerts.append(alert)
             except ValueError as err:
                 ntutil.logAlert(self.badTrajectoryAlert, err)
+    
+    def updateTrajectoryTelemetry(self):
+        # Update
+        initial_pose = None
+        if self.trajectory:
+            if self.isRedAlliance():
+                self.autoTrajectoryTopic.set([s.flipped().get_pose() for s in self.trajectory.samples])
+            else:
+                self.autoTrajectoryTopic.set([s.get_pose() for s in self.trajectory.samples])
+
+            initial_pose = self.trajectory.get_initial_pose(self.isRedAlliance())
+        else:
+            self.autoTrajectoryTopic.set([])

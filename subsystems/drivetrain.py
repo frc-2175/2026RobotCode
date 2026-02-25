@@ -14,6 +14,8 @@ import wpimath.filter
 from utils.slew2d import SlewRateLimiter2D
 from utils.mathutil import Vector2d
 import ids
+import choreo.trajectory
+from wpimath.controller import PIDController
 
 
 class Drivetrain:
@@ -58,6 +60,11 @@ class Drivetrain:
         self.actualStatesTopic = nt.getStructArrayTopic("ActualSwerveStates", SwerveModuleState)
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
         self.robotPoseTopic = nt.getStructTopic("RobotPose", Pose2d)
+
+        self.choreoXController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
+        self.choreoYController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
+        self.choreoHeadingController = PIDController(constants.choreoRotationP, constants.choreoRotationI,constants.choreoRotationD)
+        self.choreoHeadingController.enableContinuousInput(-math.pi, math.pi)
 
     def periodic(self):
 
@@ -126,3 +133,18 @@ class Drivetrain:
         pose = self.odometry.getEstimatedPosition()
         self.odometry.resetPose(Pose2d(pose.x, pose.y, Rotation2d(angle)))
         # self.odometry.resetRotation(Rotation2d(angle))
+
+    def resetPose(self, pose: Pose2d):
+        self.odometry.resetPose(pose)
+
+    def setHeadingControllerMode(self, mode: SwerveHeadingMode):
+        self.headingController.setMode(mode)
+
+    def followChoreoSample(self, sample: choreo.  trajectory.SwerveSample):
+        pose = self.odometry.getEstimatedPosition()
+
+        self.drive(
+            sample.vx + self.choreoXController.calculate(pose.X(), sample.x),
+            sample.vy + self.choreoYController.calculate(pose.Y(), sample.y),
+            sample.omega + self.choreoHeadingController.calculate(pose.rotation().radians(), sample.heading),
+        )

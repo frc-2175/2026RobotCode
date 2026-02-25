@@ -52,6 +52,10 @@ class IntakeAndShooter:
     def setIndexerSpeed(self, indexerSpeed: float):
         self.indexerMotor.set(indexerSpeed)
 
+    def setShooterAndIndexer(self, shooterSpeed: float, indexerSpeed: float):
+        self.leftShooterMotor.set(shooterSpeed)
+        self.indexerMotor.set(indexerSpeed)
+
     def periodic(self):
         self.intakeController.setSetpoint(self.desiredIntakePosition, rev.SparkLowLevel.ControlType.kPosition)
 

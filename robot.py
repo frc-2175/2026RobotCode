@@ -49,6 +49,8 @@ class MyRobot(wpilib.TimedRobot):
 
         self.autoEvents: Dict[str, Callable[[], None]] = {
             "EventTest": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
+            "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndIndexer(constants.shooterSpeed, constants.indexerSpeed),
+            "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
         }
         self.loadChoreoTrajectories()
         #Alerts
@@ -59,7 +61,7 @@ class MyRobot(wpilib.TimedRobot):
         self.intakeandshooter.periodic()
         self.updateTrajectoryTelemetry()
 
-    def autonomousInit(self):
+    def autonomousInit(self): 
         self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.DISABLED)
 
         self.trajectory = self.trajectoryChooser.getSelected()

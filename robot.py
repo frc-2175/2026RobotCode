@@ -50,7 +50,10 @@ class MyRobot(wpilib.TimedRobot):
         self.autoEvents: Dict[str, Callable[[], None]] = {
             "EventTest": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
             "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndIndexer(constants.shooterSpeed, constants.indexerSpeed),
-            "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
+            "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
+            "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
+            "RunRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
+            "StopRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(0),
         }
         self.loadChoreoTrajectories()
         #Alerts

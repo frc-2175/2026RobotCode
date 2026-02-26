@@ -43,6 +43,9 @@ class IntakeAndShooter:
         self.desiredIntakePosition = self.desiredIntakePosition + intakeAngle
         self.desiredIntakePosition = (mathutil.clamp(self.desiredIntakePosition, 0, constants.intakeOutAngle))
 
+    def setIntakePosition(self, intakePosition:wpimath.units.radians):
+        self.desiredIntakePosition = (mathutil.clamp(intakePosition, 0, constants.intakeOutAngle))
+
     def setRollerSpeed(self, rollerSpeed: float):
         self.rollerMotor.set(rollerSpeed)
 

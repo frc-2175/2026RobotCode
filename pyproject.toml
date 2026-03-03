@@ -11,7 +11,8 @@ robotpy_version = "2026.2.1.1"
 requires = [
     "robotpy-rev==2026.0.1",
     "robotpy-navx==2026.0.0",
-    "sleipnirgroup-choreolib==2026.0.1"
+    "sleipnirgroup-choreolib==2026.0.1",
+    "photonlibpy==2026.2.2",
 ]
 
 [tool.pyright]

@@ -145,7 +145,7 @@
  },
  "events":[
    {"name":"RunShooterAndIndexer", "from":{"target":3, "targetTimestamp":3.12066, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
-   {"name":"StartShooting", "from":{"target":2, "targetTimestamp":2.36194, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
+   {"name":"StartShooting", "from":{"target":1, "targetTimestamp":1.65248, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
    {"name":"LowerIntake", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
    {"name":"RunRollerWheels", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":null},
    {"name":"StopRollerWheels", "from":{"target":3, "targetTimestamp":3.12066, "offset":{"exp":"0 s", "val":0.0}}, "event":null}]

@@ -1,5 +1,5 @@
 import math
-from wpimath.geometry import Translation2d
+from wpimath.geometry import Translation2d, Transform3d
 import wpimath.units
 
 
@@ -55,7 +55,7 @@ rollerSpeed = 1
 indexerSpeed = 1
 
 intakeMotorReduction = 20
-shooterMotorRatio = 11/24
+shooterMotorRatio = 11/14
 
 intakeOutAngle = wpimath.units.degreesToRadians(115)
 
@@ -65,3 +65,5 @@ choreoTranslationD = 1/wpimath.units.feetToMeters(20)
 choreoRotationP = 1/wpimath.units.degreesToRadians(30)
 choreoRotationI = 0
 choreoRotationD = 1/wpimath.units.degreesToRadians(75)
+
+robotToCam = Transform3d()

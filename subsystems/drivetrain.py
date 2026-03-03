@@ -6,7 +6,7 @@ import constants
 import utils.ntutil as ntutil
 from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kinematics
 import wpimath.units
-from wpimath.geometry import Rotation2d, Translation2d, Pose2d
+from wpimath.geometry import Rotation2d, Translation2d, Pose2d, Pose3d
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from utils.swerveheading import SwerveHeadingController, SwerveHeadingMode
 import math
@@ -16,6 +16,8 @@ from utils.mathutil import Vector2d
 import ids
 import choreo.trajectory
 from wpimath.controller import PIDController
+from photonlibpy import PhotonCamera, PhotonPoseEstimator
+from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 
 
 class Drivetrain:
@@ -60,11 +62,19 @@ class Drivetrain:
         self.actualStatesTopic = nt.getStructArrayTopic("ActualSwerveStates", SwerveModuleState)
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
         self.robotPoseTopic = nt.getStructTopic("RobotPose", Pose2d)
+        self.visionPoseTopic = nt.getStructTopic("VisionPose", Pose3d)
 
         self.choreoXController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoYController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoHeadingController = PIDController(constants.choreoRotationP, constants.choreoRotationI,constants.choreoRotationD)
         self.choreoHeadingController.enableContinuousInput(-math.pi, math.pi)
+
+        self.camera = PhotonCamera("Arducam")
+
+        self.cameraPoseEst = PhotonPoseEstimator(
+            AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded),
+            constants.robotToCam
+        )
 
     def periodic(self):
 
@@ -94,6 +104,12 @@ class Drivetrain:
             self.backRightSwerveModule.getActualState(),
         ])
         self.gyroHeadingTopic.set(self.gyro.getRotation2d().radians())
+
+        for result in self.camera.getAllUnreadResults():
+            estimate = self.cameraPoseEst.estimateCoprocMultiTagPose(result)
+            if estimate:
+                self.odometry.addVisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds)
+                self.visionPoseTopic.set(estimate.estimatedPose)
 
         self.odometry.update(
             self.gyro.getRotation2d(),

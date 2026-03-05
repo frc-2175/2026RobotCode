@@ -2,7 +2,10 @@ leftShooter = 5
 
 rightShooter = 8
 
-indexerMotor = 4
+agitatorMotor = 4
+
+#TODO change sparkmax id
+indexerMotor = 28
 
 leftIntake = 6
 

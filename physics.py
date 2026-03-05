@@ -304,7 +304,7 @@ class IntakeAndShooterSim:
     ):
         self.realSubsystem = subsystem
         self.shooterMotorsSim = SparkMaxSim2175(subsystem.leftShooterMotor, DCMotor.NEO(2), nt=nt.getFolder("ShooterMotors"))
-        self.indexerMotorSim = SparkMaxSim2175(subsystem.indexerMotor, DCMotor.NEO(1), nt=nt.getFolder("IndexerMotor"))
+        self.indexerMotorSim = SparkMaxSim2175(subsystem.agitatorMotor, DCMotor.NEO(1), nt=nt.getFolder("IndexerMotor"))
         self.intakeMotorsSim = SparkMaxSim2175(subsystem.leftIntakeMotor, DCMotor.NEO(2), nt=nt.getFolder("IntakeMotors"))
         self.rollerMotorSim = SparkMaxSim2175(subsystem.rollerMotor, DCMotor.NEO550(1), nt=nt.getFolder("RollerMotor"))
 

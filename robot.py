@@ -49,7 +49,7 @@ class MyRobot(wpilib.TimedRobot):
 
         self.autoEvents: Dict[str, Callable[[], None]] = {
             "EventTest": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
-            "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndIndexer(constants.shooterSpeed, constants.indexerSpeed),
+            "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndAgitator(constants.shooterSpeed, constants.agitatorSpeed),
             "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
             "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
             "RunRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
@@ -119,11 +119,11 @@ class MyRobot(wpilib.TimedRobot):
         self.drivetrain.drive(x, y, t)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
-        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1)#Unused
-        runIndexerOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
+        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1) > 0 #Unused
+        runAgitatorOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
 
         runFlywheel:bool = self.gamepad.getRawButton(5)
-        runIndexerIn:bool = self.gamepad.getRawButton(6)
+        runAgitatorIn:bool = self.gamepad.getRawButton(6)
         rollerSpeed:float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
         
         #Intake (LS)
@@ -139,13 +139,21 @@ class MyRobot(wpilib.TimedRobot):
         #The proper axis for the logitech controller is 5
         self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
 
-        #Indexer(RT/LT)
-        if runIndexerIn and runFlywheel:
+        #Agitator(RB/LT)
+        if runAgitatorIn and runFlywheel:
+            self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
-        elif runIndexerOut:
-            self.intakeandshooter.setIndexerSpeed(-constants.indexerSpeed)
+        elif runAgitatorOut:
+            self.intakeandshooter.setAgitatorSpeed(-constants.agitatorSpeed)
         else:
+            self.intakeandshooter.setAgitatorSpeed(0)
             self.intakeandshooter.setIndexerSpeed(0)
+
+
+        #Indexer(RT)
+        #if rightTrigger:
+          #  self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
+
 
         #Reset Rotation
         if self.leftJoystick.getRawButtonPressed(8):

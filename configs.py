@@ -60,6 +60,11 @@ shooterMotorFollowerConfig = rev.SparkMaxConfig()
 shooterMotorFollowerConfig.apply(shooterMotorConfig)
 shooterMotorFollowerConfig.follow(ids.leftShooter, True)
 
+agitatorMotorConfig = rev.SparkMaxConfig()
+agitatorMotorConfig.smartCurrentLimit(40)
+agitatorMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
+agitatorMotorConfig.inverted(True)
+
 indexerMotorConfig = rev.SparkMaxConfig()
 indexerMotorConfig.smartCurrentLimit(40)
 indexerMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)

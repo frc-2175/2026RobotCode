@@ -52,12 +52,13 @@ maxAcceleration = 20 #m/s/s
 intakeSpeed = 0.1
 shooterSpeed = 1
 rollerSpeed = 1
+agitatorSpeed = 1
 indexerSpeed = 1
 
 intakeMotorReduction = 20
 shooterMotorRatio = 11/14
 
-intakeOutAngle = wpimath.units.degreesToRadians(115)
+intakeOutAngle = wpimath.units.degreesToRadians(105)
 
 choreoTranslationP = 1/wpimath.units.inchesToMeters(20)
 choreoTranslationI = 0

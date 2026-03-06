@@ -40,6 +40,8 @@ class IntakeAndShooter:
 
         self.desiredIntakePosition = 0
 
+        self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
+
         
 
     
@@ -65,6 +67,7 @@ class IntakeAndShooter:
     def setShooterAndAgitator(self, shooterSpeed: float, agitatorSpeed: float):
         self.leftShooterMotor.set(shooterSpeed)
         self.agitatorMotor.set(agitatorSpeed)
+
 
     def periodic(self):
         self.intakeController.setSetpoint(self.desiredIntakePosition, rev.SparkLowLevel.ControlType.kPosition)

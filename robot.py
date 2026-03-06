@@ -129,7 +129,7 @@ class MyRobot(wpilib.TimedRobot):
         #Intake (LS)
         self.intakeandshooter.changeIntakePosition(intakePositionChange)
 
-        #Flywheel (RB)
+        #Flywheel (LB)
         if runFlywheel:
             self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
         else:
@@ -139,7 +139,8 @@ class MyRobot(wpilib.TimedRobot):
         #The proper axis for the logitech controller is 5
         self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
 
-        #Agitator(RB/LT)
+        #Agitator(In:RB/Out:LT)
+        '''
         if runAgitatorIn and runFlywheel:
             self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
@@ -148,6 +149,14 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.intakeandshooter.setAgitatorSpeed(0)
             self.intakeandshooter.setIndexerSpeed(0)
+        '''
+
+        #Auto Shoot(LB)
+        if runFlywheel:
+            self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
+            if self.intakeandshooter.currentFlywheelSpeed >= 4000:
+                self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
+                self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
 
 
         #Indexer(RT)

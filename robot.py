@@ -140,7 +140,7 @@ class MyRobot(wpilib.TimedRobot):
         self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
 
         #Agitator(In:RB/Out:LT)
-        '''
+        
         if runAgitatorIn and runFlywheel:
             self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
@@ -149,14 +149,16 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.intakeandshooter.setAgitatorSpeed(0)
             self.intakeandshooter.setIndexerSpeed(0)
-        '''
+        
+        #if runAgitatorOut:
+          #  self.intakeandshooter.setAgitatorSpeed(-constants.agitatorSpeed)
 
         #Auto Shoot(LB)
-        if runFlywheel:
-            self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
-            if self.intakeandshooter.currentFlywheelSpeed >= 4000:
-                self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
-                self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
+        #if runFlywheel:
+            #self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
+           # if self.intakeandshooter.currentFlywheelSpeed >= 4000:
+               # self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
+                #self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
 
 
         #Indexer(RT)

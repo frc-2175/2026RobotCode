@@ -308,12 +308,21 @@ class IntakeAndShooterSim:
         self.intakeMotorsSim = SparkMaxSim2175(subsystem.leftIntakeMotor, DCMotor.NEO(2), nt=nt.getFolder("IntakeMotors"))
         self.rollerMotorSim = SparkMaxSim2175(subsystem.rollerMotor, DCMotor.NEO550(1), nt=nt.getFolder("RollerMotor"))
 
+        moiSmallDisc: wpimath.units.kilogram_square_meters = 6.936e-5 # Per Mr. Langseth: 0.237 lbs*in^2
+        moiLargeDisc: wpimath.units.kilogram_square_meters = 2.271e-4 # Per Mr. Langseth: 0.776 lbs*in^2
+        self.flywheelSim = RotatingObject(
+            momentOfInertia=12*moiSmallDisc + 10*moiLargeDisc,
+            nt=nt.getFolder("Flywheel"),
+        )
+
     def iterate(self, vbus: float, dt: float):
         # TODO: Supply velocities
-        self.shooterMotorsSim.iterate(0, vbus, dt)
+        self.shooterMotorsSim.iterate(self.flywheelSim.getVelocity(), vbus, dt)
         self.indexerMotorSim.iterate(0, vbus, dt)
         self.intakeMotorsSim.iterate(0, vbus, dt)
         self.rollerMotorSim.iterate(0, vbus, dt)
+
+        self.flywheelSim.iterate(self.shooterMotorsSim.getMotorTorque(), dt)
 
 
 class BatterySim2175():

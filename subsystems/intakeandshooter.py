@@ -5,6 +5,9 @@ import utils.ntutil as ntutil
 import wpimath.units
 from utils import mathutil
 import constants
+import wpilib
+from wpilib import SmartDashboard
+
 class IntakeAndShooter:
     def __init__(self):
         self.leftShooterMotor = rev.SparkMax(ids.leftShooter, rev.SparkLowLevel.MotorType.kBrushless)
@@ -37,6 +40,7 @@ class IntakeAndShooter:
         self.agitatorSpeedTopic = nt.getFloatTopic("IndexerSpeed")
         self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
         self.indexerSpeedTopic = nt.getFloatTopic("IndexerSpeed")
+        self.mech = self.Mechanism(nt.topicName("Mechanism"), wpilib.Color.kRed)
 
         self.desiredIntakePosition = 0
 
@@ -77,3 +81,43 @@ class IntakeAndShooter:
         self.agitatorSpeedTopic.set(self.agitatorEncoder.getVelocity())
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
         self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())
+        self.mech.update(wheelAngle=self.shooterEncoder.getPosition())
+
+    class Mechanism:
+        def __init__(self, ntName: str, wheelColor: wpilib.Color):
+            canvasWidth = 1 # m
+            canvasHeight = 1 # m
+            self.mech = wpilib.Mechanism2d(width=canvasWidth, height=canvasHeight)
+            self.root = self.mech.getRoot("FlywheelBase",
+                                          x=0.5,
+                                          y=0.5)
+            self.flywheel = self.root.appendLigament("Flywheel",
+                                                     length=wpimath.units.inchesToMeters(2),
+                                                     angle=0,
+                                                     color=wpilib.Color8Bit(wheelColor))
+
+            # Draw a "wheel" in the dumbest way possible
+            i1 = self.flywheel.appendLigament("I1",
+                                            length=wpimath.units.inchesToMeters(2),
+                                            angle=90,
+                                            color=wpilib.Color8Bit(wheelColor))
+            i2 = i1.appendLigament("I2",
+                                   length=wpimath.units.inchesToMeters(4),
+                                   angle=90,
+                                   color=wpilib.Color8Bit(wheelColor))
+            i3 = i2.appendLigament("I3",
+                                   length=wpimath.units.inchesToMeters(4),
+                                   angle=90,
+                                   color=wpilib.Color8Bit(wheelColor))
+            i4 = i3.appendLigament("I4",
+                                   length=wpimath.units.inchesToMeters(4),
+                                   angle=90,
+                                   color=wpilib.Color8Bit(wheelColor))
+            i5 = i4.appendLigament("I5",
+                                   length=wpimath.units.inchesToMeters(2),
+                                   angle=90,
+                                   color=wpilib.Color8Bit(wheelColor))
+            SmartDashboard.putData(ntName, self.mech)
+
+        def update(self, wheelAngle: wpimath.units.radians):
+            self.flywheel.setAngle(wpimath.units.radiansToDegrees(-wheelAngle))

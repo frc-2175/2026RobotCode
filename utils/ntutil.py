@@ -93,6 +93,9 @@ class Folder:
         """
         return Folder(self.prefix + "/" + name)
 
+    def topicName(self, name: str):
+        return self.prefix + "/" + name
+
     def getBooleanArrayTopic(self, name: str, defaultValue: List[bool] = []) -> Topic[List[bool]]:
         return Topic(nt.getBooleanArrayTopic(self.prefix + "/" + name), defaultValue)
 

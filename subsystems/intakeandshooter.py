@@ -18,15 +18,15 @@ class IntakeAndShooter:
         self.rollerMotor = rev.SparkMax(ids.rollerMotor, rev.SparkLowLevel.MotorType.kBrushless)
         self.indexerMotor = rev.SparkMax(ids.indexerMotor, rev.SparkLowLevel.MotorType.kBrushless)
 
-        self.leftShooterMotor.configure(configs.shooterMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
-        self.rightShooterMotor.configure(configs.shooterMotorFollowerConfig,rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters )
+        self.leftShooterMotor.configure(configs.shooterMotorFollowerConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
+        self.rightShooterMotor.configure(configs.shooterMotorConfig,rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters )
         self.agitatorMotor.configure(configs.agitatorMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.indexerMotor.configure(configs.indexerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.leftIntakeMotor.configure(configs.intakeMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rightIntakeMotor.configure(configs.intakeFollowerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rollerMotor.configure(configs.rollerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
 
-        self.shooterEncoder = self.leftShooterMotor.getEncoder()
+        self.shooterEncoder = self.rightShooterMotor.getEncoder()
         self.intakeEncoder = self.leftIntakeMotor.getEncoder()
         self.agitatorEncoder = self.agitatorMotor.getEncoder()
         self.indexerEncoder = self.indexerMotor.getEncoder()
@@ -44,8 +44,6 @@ class IntakeAndShooter:
 
         self.desiredIntakePosition = 0
 
-        self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
-
         
 
     
@@ -60,7 +58,7 @@ class IntakeAndShooter:
         self.rollerMotor.set(rollerSpeed)
 
     def setShooterSpeed(self, shooterMotorSpeed: float):
-        self.leftShooterMotor.set(shooterMotorSpeed)
+        self.rightShooterMotor.set(shooterMotorSpeed)
 
     def setAgitatorSpeed(self, agitatorSpeed: float):
         self.agitatorMotor.set(agitatorSpeed)
@@ -69,7 +67,7 @@ class IntakeAndShooter:
         self.indexerMotor.set(indexerSpeed)
 
     def setShooterAndAgitator(self, shooterSpeed: float, agitatorSpeed: float):
-        self.leftShooterMotor.set(shooterSpeed)
+        self.rightShooterMotor.set(shooterSpeed)
         self.agitatorMotor.set(agitatorSpeed)
 
 
@@ -82,6 +80,9 @@ class IntakeAndShooter:
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
         self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())
         self.mech.update(wheelAngle=self.shooterEncoder.getPosition())
+
+        self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
+
 
     class Mechanism:
         def __init__(self, ntName: str, wheelColor: wpilib.Color):

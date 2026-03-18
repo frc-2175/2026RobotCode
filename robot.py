@@ -120,7 +120,7 @@ class MyRobot(wpilib.TimedRobot):
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
         rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1) > 0 #Unused
-        runAgitatorOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
+        runAgitatorandIndexerOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
 
         runFlywheel:bool = self.gamepad.getRawButton(5)
         runAgitatorIn:bool = self.gamepad.getRawButton(6)
@@ -135,35 +135,23 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.intakeandshooter.setShooterSpeed(0)
 
-        #Roller(RS)
-        #The proper axis for the logitech controller is 5
-        self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
-
-        #Agitator(In:RB/Out:LT)
+        autoShootReady = runFlywheel and runAgitatorIn and self.intakeandshooter.currentFlywheelSpeed >= 2000
         
-        if runAgitatorIn and runFlywheel:
+        #Auto Shoot(RB) and eject fuel (LT)
+        if autoShootReady:
             self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
             self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
-        elif runAgitatorOut:
+        elif runAgitatorandIndexerOut:
             self.intakeandshooter.setAgitatorSpeed(-constants.agitatorSpeed)
+            self.intakeandshooter.setIndexerSpeed(-constants.indexerSpeed)
         else:
             self.intakeandshooter.setAgitatorSpeed(0)
             self.intakeandshooter.setIndexerSpeed(0)
-        
-        #if runAgitatorOut:
-          #  self.intakeandshooter.setAgitatorSpeed(-constants.agitatorSpeed)
-
-        #Auto Shoot(LB)
-        #if runFlywheel:
-            #self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
-           # if self.intakeandshooter.currentFlywheelSpeed >= 4000:
-               # self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
-                #self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
 
 
-        #Indexer(RT)
-        #if rightTrigger:
-          #  self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
+        #Roller(RS)
+        #The proper axis for the logitech controller is 5
+        self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
 
 
         #Reset Rotation

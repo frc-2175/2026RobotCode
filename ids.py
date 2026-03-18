@@ -1,8 +1,8 @@
-leftShooter = 5
+leftShooter = 4
 
 rightShooter = 8
 
-agitatorMotor = 4
+agitatorMotor = 5
 
 indexerMotor = 28
 

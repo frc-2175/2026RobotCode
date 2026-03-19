@@ -156,7 +156,7 @@ class Drivetrain:
     def setHeadingControllerMode(self, mode: SwerveHeadingMode):
         self.headingController.setMode(mode)
 
-    def followChoreoSample(self, sample: choreo.  trajectory.SwerveSample):
+    def followChoreoSample(self, sample: choreo.trajectory.SwerveSample):
         pose = self.odometry.getEstimatedPosition()
 
         self.drive(

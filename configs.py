@@ -23,8 +23,8 @@ driveMotorConfig.encoder.velocityConversionFactor(
 )
 # Use PIDF for control with the built-in NEO encoder for feedback.
 driveMotorConfig.closedLoop.setFeedbackSensor(rev.FeedbackSensor.kPrimaryEncoder)
-driveMotorConfig.closedLoop.pid(0, 0, 0)
-driveMotorConfig.closedLoop.feedForward.kV(1 / constants.physicalMaxSpeed * (12 if RobotBase.isSimulation() else 1)) # kV is in volts/(m/s)
+driveMotorConfig.closedLoop.pid(0.05, 0, 0)
+driveMotorConfig.closedLoop.feedForward.kV(1 / constants.physicalMaxSpeed * 12) # kV is in volts/(m/s)
 
 steerMotorConfig = rev.SparkMaxConfig()
 steerMotorConfig.smartCurrentLimit(40)

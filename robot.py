@@ -11,7 +11,7 @@ from typing import List, Callable, Dict
 from wpilib import Alert, SmartDashboard
 from utils.swerveheading import SwerveHeadingMode
 import choreo.trajectory
-from wpimath.geometry import Pose2d
+from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.kinematics import ChassisSpeeds
 
 
@@ -52,6 +52,7 @@ class MyRobot(wpilib.TimedRobot):
             "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndAgitator(constants.shooterSpeed, constants.agitatorSpeed),
             "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
             "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
+            "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(0),
             "RunRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
             "StopRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(0),
         }
@@ -111,10 +112,12 @@ class MyRobot(wpilib.TimedRobot):
         x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
         y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
+        joystickAngle = -self.rightJoystick.getDirectionRadians()
 
         if self.isRedAlliance():
             x = -x
             y = -y
+            joystickAngle += math.pi
 
         self.drivetrain.drive(x, y, t)
 
@@ -135,7 +138,7 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.intakeandshooter.setShooterSpeed(0)
 
-        autoShootReady = runFlywheel and runAgitatorIn and self.intakeandshooter.currentFlywheelSpeed >= 2000
+        autoShootReady = runFlywheel and runAgitatorIn and self.intakeandshooter.currentFlywheelSpeed >= 3000
         
         #Auto Shoot(RB) and eject fuel (LT)
         if autoShootReady:
@@ -157,6 +160,13 @@ class MyRobot(wpilib.TimedRobot):
         #Reset Rotation
         if self.leftJoystick.getRawButtonPressed(8):
             self.drivetrain.resetHeading(self.driverForwardAngle())
+
+        # Always On Mode
+        if self.rightJoystick.getRawButton(1):
+            self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.ALWAYS_ON)
+            self.drivetrain.setHeadingControllerGoal(Rotation2d(joystickAngle))
+        else:
+            self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
     def isRedAlliance(self):
         return wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed

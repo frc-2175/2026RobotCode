@@ -164,3 +164,6 @@ class Drivetrain:
             sample.vy + self.choreoYController.calculate(pose.Y(), sample.y),
             sample.omega + self.choreoHeadingController.calculate(pose.rotation().radians(), sample.heading),
         )
+    
+    def setHeadingControllerGoal(self, angle : Rotation2d):
+        self.headingController.setGoal(angle)

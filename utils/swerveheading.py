@@ -25,6 +25,8 @@ class SwerveHeadingMode(Enum):
     the robot to physically rotate in an unexpected way.
     """
 
+    ALWAYS_ON = 2
+
 
 class SwerveHeadingController:
     def __init__(self, getHeading: Callable[[], Rotation2d], getRate: Callable[[], float], mode: SwerveHeadingMode) -> None:
@@ -77,6 +79,8 @@ class SwerveHeadingController:
                 # Use `rot`, and update the goal to the current gyro angle to maintain later.
                 self.goal = self.getHeading()
                 output = rot
+        elif self.mode == SwerveHeadingMode.ALWAYS_ON:
+            output = self.PID.calculate(self.getHeading().radians())
         else:
             ntutil.logAlert(self.badModeAlert, self.mode)
             output = rot

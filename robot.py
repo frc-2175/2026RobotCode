@@ -54,7 +54,7 @@ class MyRobot(wpilib.TimedRobot):
             "StopShooting":lambda: self.intakeandshooter.startShooting(False),
             "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
             "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(0),
-            "RunRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
+            "StartRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
             "StopRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(0),
         }
         self.loadChoreoTrajectories()

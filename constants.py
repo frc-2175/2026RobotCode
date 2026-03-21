@@ -55,6 +55,9 @@ rollerSpeed = 1
 agitatorSpeed = 1
 indexerSpeed = 1
 
+bangBangTargetRPM = 3000
+shotRPM = 2800
+
 intakeMotorReduction = 20
 shooterMotorRatio = 11/14
 

@@ -93,12 +93,12 @@ class IntakeAndShooter:
 
         self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
 
-        if self.runFlywheel == True:
+        if self.runFlywheel == True and self.currentFlywheelSpeed < constants.bangBangTargetRPM:
             self.__setShooterSpeed(constants.shooterSpeed)
         else:
             self.__setShooterSpeed(0)
 
-        autoShootReady = self.runFlywheel and self.doShoot and self.currentFlywheelSpeed >= 3000
+        autoShootReady = self.runFlywheel and self.doShoot and self.currentFlywheelSpeed >= constants.shotRPM
         if autoShootReady:
             self.__setAgitatorSpeed(constants.agitatorSpeed)
             self.__setIndexerSpeed(constants.indexerSpeed)

@@ -52,7 +52,7 @@ maxAcceleration = 20 #m/s/s
 intakeSpeed = 0.1
 shooterSpeed = 1
 rollerSpeed = 1
-agitatorSpeed = 1
+agitatorSpeed = 0.3
 indexerSpeed = 1
 
 bangBangTargetRPM = 3000

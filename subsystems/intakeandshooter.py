@@ -44,6 +44,10 @@ class IntakeAndShooter:
 
         self.desiredIntakePosition = 0
 
+        self.runFlywheel = False
+        self.doShoot = False
+        self.indexerAndAgitatorOut = False
+
         
 
     
@@ -57,18 +61,24 @@ class IntakeAndShooter:
     def setRollerSpeed(self, rollerSpeed: float):
         self.rollerMotor.set(rollerSpeed)
 
-    def setShooterSpeed(self, shooterMotorSpeed: float):
+    def __setShooterSpeed(self, shooterMotorSpeed: float):
         self.rightShooterMotor.set(shooterMotorSpeed)
 
-    def setAgitatorSpeed(self, agitatorSpeed: float):
+    def __setAgitatorSpeed(self, agitatorSpeed: float):
         self.agitatorMotor.set(agitatorSpeed)
 
-    def setIndexerSpeed(self, indexerSpeed: float):
+    def __setIndexerSpeed(self, indexerSpeed: float):
         self.indexerMotor.set(indexerSpeed)
 
-    def setShooterAndAgitator(self, shooterSpeed: float, agitatorSpeed: float):
-        self.rightShooterMotor.set(shooterSpeed)
-        self.agitatorMotor.set(agitatorSpeed)
+    def setFlywheelRunning(self, run:bool):
+        self.runFlywheel = run
+
+    def startShooting(self, doShoot:bool):
+        self.doShoot = doShoot
+
+    def runIndexerAndAgitatorOut(self, runOut:bool):
+        self.indexerAndAgitatorOut = runOut
+
 
 
     def periodic(self):
@@ -82,6 +92,22 @@ class IntakeAndShooter:
         self.mech.update(wheelAngle=self.shooterEncoder.getPosition())
 
         self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
+
+        if self.runFlywheel == True:
+            self.__setShooterSpeed(constants.shooterSpeed)
+        else:
+            self.__setShooterSpeed(0)
+
+        autoShootReady = self.runFlywheel and self.doShoot and self.currentFlywheelSpeed >= 3000
+        if autoShootReady:
+            self.__setAgitatorSpeed(constants.agitatorSpeed)
+            self.__setIndexerSpeed(constants.indexerSpeed)
+        elif self.indexerAndAgitatorOut:
+            self.__setAgitatorSpeed(-constants.agitatorSpeed)
+            self.__setIndexerSpeed(-constants.indexerSpeed)
+        else:
+            self.__setAgitatorSpeed(0)
+            self.__setIndexerSpeed(0)
 
 
     class Mechanism:

@@ -48,9 +48,10 @@ class MyRobot(wpilib.TimedRobot):
         SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
         self.autoEvents: Dict[str, Callable[[], None]] = {
-            "EventTest": lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
-            "RunShooterAndIndexer": lambda: self.intakeandshooter.setShooterAndAgitator(constants.shooterSpeed, constants.agitatorSpeed),
-            "StartShooting":lambda: self.intakeandshooter.setShooterSpeed(constants.shooterSpeed),
+            "StartFlywheel": lambda: self.intakeandshooter.setFlywheelRunning(True),
+            "StopFlywheel":lambda: self.intakeandshooter.setFlywheelRunning(False),
+            "StartShooting":lambda: self.intakeandshooter.startShooting(True),
+            "StopShooting":lambda: self.intakeandshooter.startShooting(False),
             "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
             "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(0),
             "RunRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
@@ -123,33 +124,19 @@ class MyRobot(wpilib.TimedRobot):
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
         rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1) > 0 #Unused
-        runAgitatorandIndexerOut: bool = wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0
 
-        runFlywheel:bool = self.gamepad.getRawButton(5)
-        runAgitatorIn:bool = self.gamepad.getRawButton(6)
         rollerSpeed:float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
         
         #Intake (LS)
         self.intakeandshooter.changeIntakePosition(intakePositionChange)
 
         #Flywheel (LB)
-        if runFlywheel:
-            self.intakeandshooter.setShooterSpeed(constants.shooterSpeed)
-        else:
-            self.intakeandshooter.setShooterSpeed(0)
+        self.intakeandshooter.setFlywheelRunning(self.gamepad.getRawButton(5))
 
-        autoShootReady = runFlywheel and runAgitatorIn and self.intakeandshooter.currentFlywheelSpeed >= 3000
         
         #Auto Shoot(RB) and eject fuel (LT)
-        if autoShootReady:
-            self.intakeandshooter.setAgitatorSpeed(constants.agitatorSpeed)
-            self.intakeandshooter.setIndexerSpeed(constants.indexerSpeed)
-        elif runAgitatorandIndexerOut:
-            self.intakeandshooter.setAgitatorSpeed(-constants.agitatorSpeed)
-            self.intakeandshooter.setIndexerSpeed(-constants.indexerSpeed)
-        else:
-            self.intakeandshooter.setAgitatorSpeed(0)
-            self.intakeandshooter.setIndexerSpeed(0)
+        self.intakeandshooter.startShooting(self.gamepad.getRawButton(6))
+        self.intakeandshooter.runIndexerAndAgitatorOut(wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0)
 
 
         #Roller(RS)

@@ -88,5 +88,5 @@ intakeFollowerMotorConfig.apply(intakeMotorConfig)
 intakeFollowerMotorConfig.follow(ids.leftIntake, True)
 
 rollerMotorConfig = rev.SparkMaxConfig()
-rollerMotorConfig.smartCurrentLimit(40)
+rollerMotorConfig.smartCurrentLimit(20)
 rollerMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)

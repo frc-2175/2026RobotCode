@@ -61,7 +61,7 @@ shotRPM = 2800
 intakeMotorReduction = 20
 shooterMotorRatio = 11/14
 
-intakeOutAngle = wpimath.units.degreesToRadians(105)
+intakeOutAngle = wpimath.units.degreesToRadians(106)
 
 choreoTranslationP = 2/wpimath.units.inchesToMeters(20)
 choreoTranslationI = 0

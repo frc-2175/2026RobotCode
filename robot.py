@@ -120,6 +120,22 @@ class MyRobot(wpilib.TimedRobot):
             y = -y
             joystickAngle += math.pi
 
+        if self.leftJoystick.getRawButton(1):
+            x = 0.5 * x
+            y = 0.5 * y
+            t = 0.5 * t
+
+        # Always On Mode
+        if self.rightJoystick.getRawButton(1):
+            if self.rightJoystick.getMagnitude() > 0.5:
+                self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.ALWAYS_ON)
+                self.drivetrain.setHeadingControllerGoal(Rotation2d(joystickAngle))
+            else:
+                t = 0
+                self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
+        else:
+            self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
+
         self.drivetrain.drive(x, y, t)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
@@ -148,12 +164,6 @@ class MyRobot(wpilib.TimedRobot):
         if self.leftJoystick.getRawButtonPressed(8):
             self.drivetrain.resetHeading(self.driverForwardAngle())
 
-        # Always On Mode
-        if self.rightJoystick.getRawButton(1):
-            self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.ALWAYS_ON)
-            self.drivetrain.setHeadingControllerGoal(Rotation2d(joystickAngle))
-        else:
-            self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
     def isRedAlliance(self):
         return wpilib.DriverStation.getAlliance() == wpilib.DriverStation.Alliance.kRed

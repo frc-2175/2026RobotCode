@@ -188,6 +188,18 @@ class MyRobot(wpilib.TimedRobot):
                 trajectory = choreo.load_swerve_trajectory(autoName)
                 self.trajectoryChooser.addOption(autoName, trajectory)
 
+                if autoName.endswith("Right"):
+                    trajectoryLeft = choreo.load_swerve_trajectory(autoName)
+                    for i in range(len(trajectoryLeft.samples)):
+                        trajectoryLeft.samples[i].y = 8.07 - trajectoryLeft.samples[i].y
+                        trajectoryLeft.samples[i].heading *= -1
+                        trajectoryLeft.samples[i].vy *= -1
+                        trajectoryLeft.samples[i].omega *= -1
+                        trajectoryLeft.samples[i].ay *= -1
+                        trajectoryLeft.samples[i].alpha *= -1
+                        trajectoryLeft.samples[i].fy = [-v for v in trajectoryLeft.samples[i].fy]
+                    self.trajectoryChooser.addOption(autoName.removesuffix("Right") + "Left", trajectoryLeft) 
+
                 for event in trajectory.events:
                     if event.event not in self.autoEvents:
                         alert = Alert(f"Invalid event in \"{autoName}\": {event.event}", Alert.AlertType.kWarning)

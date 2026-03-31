@@ -115,7 +115,7 @@ class MyRobot(wpilib.TimedRobot):
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
         joystickAngle = -self.rightJoystick.getDirectionRadians()
 
-        enableRobotRelative = self.rightJoystick.getRawButton(3)
+        enableRobotRelative = self.rightJoystick.getRawButton(3) or self.leftJoystick.getRawButton(3)
 
         if self.isRedAlliance():
             x = -x

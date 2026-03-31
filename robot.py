@@ -97,7 +97,7 @@ class MyRobot(wpilib.TimedRobot):
                         else:
                             ntutil.log(f"Autonomous event not recognized; skipping: {event.event}")
             else:
-                self.drivetrain.drive(0, 0, 0)
+                self.drivetrain.drive(0, 0, 0, fieldRelative= True)
 
         self.previousAutoTime = currentAutoTime
 
@@ -114,6 +114,8 @@ class MyRobot(wpilib.TimedRobot):
         y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
         joystickAngle = -self.rightJoystick.getDirectionRadians()
+
+        enableRobotRelative = self.rightJoystick.getRawButton(3)
 
         if self.isRedAlliance():
             x = -x
@@ -136,7 +138,7 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
-        self.drivetrain.drive(x, y, t)
+        self.drivetrain.drive(x, y, t, not enableRobotRelative)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
         rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1) > 0 #Unused

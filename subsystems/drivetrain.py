@@ -123,18 +123,25 @@ class Drivetrain:
 
         self.robotPoseTopic.set(self.odometry.getEstimatedPosition())
 
+    
+
     def drive(
         self,
         xSpeed: wpimath.units.meters_per_second,
         ySpeed: wpimath.units.meters_per_second,
         turnSpeed: wpimath.units.radians_per_second,
+        fieldRelative: bool,
     ):
-        self.desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            xSpeed,
-            ySpeed,
-            turnSpeed,
-            self.odometry.getEstimatedPosition().rotation()
-        )
+        if fieldRelative:
+            self.desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                xSpeed,
+                ySpeed,
+                turnSpeed,
+                self.odometry.getEstimatedPosition().rotation()
+            )
+        else:
+            self.desiredChassisSpeeds = ChassisSpeeds(xSpeed, ySpeed, turnSpeed)
+        
         
     def getHeading(self) -> Rotation2d:
         return self.odometry.getEstimatedPosition().rotation()
@@ -163,6 +170,7 @@ class Drivetrain:
             sample.vx + self.choreoXController.calculate(pose.X(), sample.x),
             sample.vy + self.choreoYController.calculate(pose.Y(), sample.y),
             sample.omega + self.choreoHeadingController.calculate(pose.rotation().radians(), sample.heading),
+            fieldRelative= True
         )
     
     def setHeadingControllerGoal(self, angle : Rotation2d):

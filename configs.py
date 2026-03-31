@@ -58,7 +58,7 @@ shooterMotorConfig.encoder.velocityConversionFactor(constants.shooterMotorRatio)
 
 shooterMotorFollowerConfig = rev.SparkMaxConfig()
 shooterMotorFollowerConfig.apply(shooterMotorConfig)
-shooterMotorFollowerConfig.follow(ids.leftShooter, True)
+shooterMotorFollowerConfig.follow(ids.rightShooter, True)
 
 agitatorMotorConfig = rev.SparkMaxConfig()
 agitatorMotorConfig.smartCurrentLimit(40)
@@ -80,7 +80,7 @@ intakeMotorConfig.closedLoop.pid(1, 0, 0)
 intakeMotorConfig.closedLoop.outputRange(-constants.intakeSpeed, constants.intakeSpeed)
 intakeMotorConfig.softLimit.forwardSoftLimit(constants.intakeOutAngle)
 intakeMotorConfig.softLimit.forwardSoftLimitEnabled(True)
-intakeMotorConfig.softLimit.reverseSoftLimit(0)
+intakeMotorConfig.softLimit.reverseSoftLimit(constants.intakeInAngle)
 intakeMotorConfig.softLimit.reverseSoftLimitEnabled(True)
 
 intakeFollowerMotorConfig = rev.SparkMaxConfig()

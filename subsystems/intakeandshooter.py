@@ -41,6 +41,8 @@ class IntakeAndShooter:
         self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
         self.indexerSpeedTopic = nt.getFloatTopic("IndexerSpeed")
         self.mech = self.Mechanism(nt.topicName("Mechanism"), wpilib.Color.kRed)
+        self.rightShooterCurrentTopic = nt.getFloatTopic("RightShooterCurrent")
+        self.leftShooterCurrentTopic = nt.getFloatTopic("LeftShooterCurrent")
 
         self.desiredIntakePosition = 0
 
@@ -52,11 +54,10 @@ class IntakeAndShooter:
 
     
     def changeIntakePosition(self, intakeAngle: wpimath.units.radians):
-        self.desiredIntakePosition = self.desiredIntakePosition + intakeAngle
-        self.desiredIntakePosition = (mathutil.clamp(self.desiredIntakePosition, 0, constants.intakeOutAngle))
+        self.setIntakePosition(self.desiredIntakePosition + intakeAngle)
 
     def setIntakePosition(self, intakePosition:wpimath.units.radians):
-        self.desiredIntakePosition = (mathutil.clamp(intakePosition, 0, constants.intakeOutAngle))
+        self.desiredIntakePosition = (mathutil.clamp(intakePosition, constants.intakeInAngle, constants.intakeOutAngle))
 
     def setRollerSpeed(self, rollerSpeed: float):
         self.rollerMotor.set(rollerSpeed)
@@ -90,6 +91,8 @@ class IntakeAndShooter:
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
         self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())
         self.mech.update(wheelAngle=self.shooterEncoder.getPosition())
+        self.rightShooterCurrentTopic.set(self.rightShooterMotor.getOutputCurrent())
+        self.leftShooterCurrentTopic.set(self.leftShooterMotor.getOutputCurrent())
 
         self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
 

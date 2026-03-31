@@ -53,7 +53,7 @@ class MyRobot(wpilib.TimedRobot):
             "StartShooting":lambda: self.intakeandshooter.startShooting(True),
             "StopShooting":lambda: self.intakeandshooter.startShooting(False),
             "LowerIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeOutAngle),
-            "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(0),
+            "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeInAngle),
             "StartRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
             "StopRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(0),
         }

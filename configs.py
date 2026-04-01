@@ -13,7 +13,7 @@ import ids
 # =============================================================================
 
 driveMotorConfig = rev.SparkMaxConfig()
-driveMotorConfig.smartCurrentLimit(40)
+driveMotorConfig.smartCurrentLimit(30)
 driveMotorConfig.setIdleMode(rev.SparkBaseConfig.IdleMode.kBrake)
 # Convert position from rotations to m
 driveMotorConfig.encoder.positionConversionFactor(math.pi * constants.wheelDiameter / constants.driveMotorReduction)
@@ -27,7 +27,7 @@ driveMotorConfig.closedLoop.pid(0.05, 0, 0)
 driveMotorConfig.closedLoop.feedForward.kV(1 / constants.physicalMaxSpeed * 12) # kV is in volts/(m/s)
 
 steerMotorConfig = rev.SparkMaxConfig()
-steerMotorConfig.smartCurrentLimit(40)
+steerMotorConfig.smartCurrentLimit(20)
 # Convert velocity (as measured by built-in relative encoder) from RPM to rad/s.
 # TODO: Shouldn't this take the gear ratio of the steering gearbox into account?
 steerMotorConfig.encoder.velocityConversionFactor(2 * math.pi / 60)

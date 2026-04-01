@@ -35,7 +35,8 @@ class IntakeAndShooter:
         self.intakeController = self.leftIntakeMotor.getClosedLoopController()
 
         nt = ntutil.Folder("IntakeAndShooter")
-        self.intakePositionTopic = nt.getFloatTopic("IntakePosition",)
+        self.intakePositionTopic = nt.getFloatTopic("IntakePosition")
+        self.desiredIntakePositionTopic = nt.getFloatTopic("IntakePositionDesired")
         self.shooterSpeedTopic = nt.getFloatTopic("ShooterSpeed")
         self.agitatorSpeedTopic = nt.getFloatTopic("IndexerSpeed")
         self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
@@ -87,6 +88,7 @@ class IntakeAndShooter:
 
         self.shooterSpeedTopic.set(self.shooterEncoder.getVelocity())
         self.intakePositionTopic.set(self.intakeEncoder.getPosition())
+        self.desiredIntakePositionTopic.set(self.desiredIntakePosition)
         self.agitatorSpeedTopic.set(self.agitatorEncoder.getVelocity())
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
         self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())

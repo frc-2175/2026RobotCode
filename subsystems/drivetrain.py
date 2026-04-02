@@ -16,7 +16,6 @@ from utils.mathutil import Vector2d
 import ids
 import choreo.trajectory
 from wpimath.controller import PIDController
-from photonlibpy import PhotonCamera, PhotonPoseEstimator
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField
 
 
@@ -69,13 +68,6 @@ class Drivetrain:
         self.choreoHeadingController = PIDController(constants.choreoRotationP, constants.choreoRotationI,constants.choreoRotationD)
         self.choreoHeadingController.enableContinuousInput(-math.pi, math.pi)
 
-        self.camera = PhotonCamera("Arducam")
-
-        self.cameraPoseEst = PhotonPoseEstimator(
-            AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded),
-            constants.robotToCam
-        )
-
     def periodic(self):
 
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
@@ -104,12 +96,6 @@ class Drivetrain:
             self.backRightSwerveModule.getActualState(),
         ])
         self.gyroHeadingTopic.set(self.gyro.getRotation2d().radians())
-
-        for result in self.camera.getAllUnreadResults():
-            estimate = self.cameraPoseEst.estimateCoprocMultiTagPose(result)
-            if estimate:
-                self.odometry.addVisionMeasurement(estimate.estimatedPose.toPose2d(), estimate.timestampSeconds)
-                self.visionPoseTopic.set(estimate.estimatedPose)
 
         self.odometry.update(
             self.gyro.getRotation2d(),

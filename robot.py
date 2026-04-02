@@ -8,7 +8,7 @@ import choreo
 from utils import ntutil
 import os
 from typing import List, Callable, Dict
-from wpilib import Alert, SmartDashboard
+from wpilib import Alert, SmartDashboard, DataLogManager, DriverStation
 from utils.swerveheading import SwerveHeadingMode
 import choreo.trajectory
 from wpimath.geometry import Pose2d, Rotation2d
@@ -19,6 +19,10 @@ class MyRobot(wpilib.TimedRobot):
 
 
     def robotInit(self):
+
+        DataLogManager.start()
+        DriverStation.startDataLog(DataLogManager.getLog())
+        
         self.drivetrain = Drivetrain()
         self.intakeandshooter = IntakeAndShooter()
         self.leftJoystick = wpilib.Joystick(0)

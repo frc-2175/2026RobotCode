@@ -101,7 +101,7 @@ class IntakeAndShooter:
         if self.runFlywheel == True and self.currentFlywheelSpeed < constants.bangBangTargetRPM:
             self.__setShooterSpeed(constants.shooterSpeed)
         else:
-            self.__setShooterSpeed(0)
+            self.__setShooterSpeed(constants.shooterIdleSpeed)
 
         autoShootReady = self.runFlywheel and self.doShoot and self.currentFlywheelSpeed >= constants.shotRPM
         if autoShootReady:

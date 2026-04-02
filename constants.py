@@ -54,6 +54,7 @@ shooterSpeed = 0.75
 rollerSpeed = 1
 agitatorSpeed = 0.3
 indexerSpeed = 1
+shooterIdleSpeed = 0.1
 
 bangBangTargetRPM = 2600
 shotRPM = 2550

@@ -22,7 +22,7 @@ class MyRobot(wpilib.TimedRobot):
 
         DataLogManager.start()
         DriverStation.startDataLog(DataLogManager.getLog())
-        
+
         self.drivetrain = Drivetrain()
         self.intakeandshooter = IntakeAndShooter()
         self.leftJoystick = wpilib.Joystick(0)
@@ -42,12 +42,14 @@ class MyRobot(wpilib.TimedRobot):
         self.trajectoryAlerts: List[Alert] = []
         self.autoTimer = wpilib.Timer()
         self.previousAutoTime: float = 0
+        self.autoMove = False
 
         autont = ntutil.getFolder("Auto")
         self.autoTimerTopic = autont.getFloatTopic("Timer")
         self.autoTrajectoryTopic = autont.getStructArrayTopic("Trajectory", Pose2d)
         self.autoChassisSpeedsTopic = autont.getStructTopic("ChassisSpeeds", ChassisSpeeds)
         self.autoPoseTopic = autont.getStructTopic("Pose", Pose2d)
+        self.autoMoveTopic = autont.getBooleanTopic("AutoMove")
         
         SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
@@ -60,6 +62,8 @@ class MyRobot(wpilib.TimedRobot):
             "RaiseIntake":lambda: self.intakeandshooter.setIntakePosition(constants.intakeInAngle),
             "StartRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(constants.rollerSpeed),
             "StopRollerWheels":lambda: self.intakeandshooter.setRollerSpeed(0),
+            "ActivateAutoMove":lambda: self.setAutoMove(True),
+            "DisableAutoMove":lambda: self.setAutoMove(False),
         }
         self.loadChoreoTrajectories()
         #Alerts
@@ -69,13 +73,15 @@ class MyRobot(wpilib.TimedRobot):
         self.drivetrain.periodic()
         self.intakeandshooter.periodic()
         self.updateTrajectoryTelemetry()
+        self.autoMoveTopic.set(self.autoMove)
 
     def autonomousInit(self): 
         self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.DISABLED)
+        self.autoMove = False
+        self.autoTimer.restart()
 
         self.trajectory = self.trajectoryChooser.getSelected()
         if self.trajectory:
-            self.autoTimer.restart()
             self.previousAutoTime = 0
             firstSample = self.trajectory.sample_at(0, self.isRedAlliance())
             if firstSample:
@@ -86,25 +92,33 @@ class MyRobot(wpilib.TimedRobot):
         self.autoTimerTopic.set(currentAutoTime)
 
         if self.trajectory:
-            sample = self.trajectory.sample_at(self.autoTimer.get(), self.isRedAlliance())
+            sample = self.trajectory.sample_at(currentAutoTime, self.isRedAlliance())
 
             if sample:
                 self.drivetrain.followChoreoSample(sample)
                 self.autoChassisSpeedsTopic.set(sample.get_chassis_speeds())
                 self.autoPoseTopic.set(sample.get_pose())
-
-                for event in self.trajectory.events:
-                    if self.previousAutoTime <= event.timestamp < currentAutoTime:
-                        if event.event in self.autoEvents:
-                            command = self.autoEvents[event.event]
-                            command()
-                        else:
-                            ntutil.log(f"Autonomous event not recognized; skipping: {event.event}")
             else:
                 self.drivetrain.drive(0, 0, 0, fieldRelative= True)
 
+            for event in self.trajectory.events:
+                if self.previousAutoTime <= event.timestamp < currentAutoTime:
+                    if event.event in self.autoEvents:
+                        ntutil.log(f"Running autonomous event: {event.event}")
+                        command = self.autoEvents[event.event]
+                        command()
+                    else:
+                        ntutil.log(f"Autonomous event not recognized; skipping: {event.event}")
+
+        if self.autoMove:
+            if currentAutoTime % 2 < 1:
+                self.intakeandshooter.setIntakePosition(constants.intakeOutAngle)
+            else:
+                self.intakeandshooter.setIntakePosition(constants.intakeInAngle)
+
         self.previousAutoTime = currentAutoTime
 
+       
     def teleopInit(self):
         self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
         #TODO Reset Heading Controller
@@ -180,6 +194,8 @@ class MyRobot(wpilib.TimedRobot):
         else:
             return 0
         
+    def setAutoMove(self, autoMove: bool):
+        self.autoMove = autoMove
 
     def loadChoreoTrajectories(self):
         choreoDir = os.path.join(wpilib.getDeployDirectory(), "choreo")

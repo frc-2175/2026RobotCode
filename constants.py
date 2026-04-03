@@ -50,16 +50,16 @@ rotationSlewRate = 8 * math.pi #rad/s
 maxAcceleration = 20 #m/s/s
 
 intakeSpeed = 0.1
-shooterSpeed = 0.75
+shooterSpeed = 0.65
 rollerSpeed = 1
 agitatorSpeed = 0.3
 indexerSpeed = 1
 
-bangBangTargetRPM = 2600
-shotRPM = 2550
+bangBangTargetRPM = 3782
+shotRPM = 3700
 
 intakeMotorReduction = 20
-shooterMotorRatio = 11/14
+shooterMotorRatio = 24/16
 
 intakeOutAngle = wpimath.units.degreesToRadians(-10)
 intakeInAngle = wpimath.units.degreesToRadians(-106)

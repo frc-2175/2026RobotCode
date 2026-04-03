@@ -18,15 +18,16 @@ class IntakeAndShooter:
         self.rollerMotor = rev.SparkMax(ids.rollerMotor, rev.SparkLowLevel.MotorType.kBrushless)
         self.indexerMotor = rev.SparkMax(ids.indexerMotor, rev.SparkLowLevel.MotorType.kBrushless)
 
-        self.leftShooterMotor.configure(configs.shooterMotorFollowerConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
-        self.rightShooterMotor.configure(configs.shooterMotorConfig,rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters )
+        self.leftShooterMotor.configure(configs.leftShooterMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
+        self.rightShooterMotor.configure(configs.rightShooterMotorConfig,rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters )
         self.agitatorMotor.configure(configs.agitatorMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.indexerMotor.configure(configs.indexerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.leftIntakeMotor.configure(configs.intakeMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rightIntakeMotor.configure(configs.intakeFollowerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
         self.rollerMotor.configure(configs.rollerMotorConfig, rev.ResetMode.kResetSafeParameters, rev.PersistMode.kPersistParameters)
 
-        self.shooterEncoder = self.rightShooterMotor.getEncoder()
+        self.rightShooterEncoder = self.rightShooterMotor.getEncoder()
+        self.leftShooterEncoder = self.leftShooterMotor.getEncoder()
         self.intakeEncoder = self.leftIntakeMotor.getEncoder()
         self.agitatorEncoder = self.agitatorMotor.getEncoder()
         self.indexerEncoder = self.indexerMotor.getEncoder()
@@ -37,7 +38,8 @@ class IntakeAndShooter:
         nt = ntutil.Folder("IntakeAndShooter")
         self.intakePositionTopic = nt.getFloatTopic("IntakePosition")
         self.desiredIntakePositionTopic = nt.getFloatTopic("IntakePositionDesired")
-        self.shooterSpeedTopic = nt.getFloatTopic("ShooterSpeed")
+        self.rightShooterSpeedTopic = nt.getFloatTopic("RightShooterSpeed")
+        self.leftShooterSpeedTopic = nt.getFloatTopic("LeftShooterSpeed")
         self.agitatorSpeedTopic = nt.getFloatTopic("IndexerSpeed")
         self.rollerSpeedTopic = nt.getFloatTopic("RollerSpeed")
         self.indexerSpeedTopic = nt.getFloatTopic("IndexerSpeed")
@@ -65,6 +67,7 @@ class IntakeAndShooter:
 
     def __setShooterSpeed(self, shooterMotorSpeed: float):
         self.rightShooterMotor.set(shooterMotorSpeed)
+        self.leftShooterMotor.set(shooterMotorSpeed)
 
     def __setAgitatorSpeed(self, agitatorSpeed: float):
         self.agitatorMotor.set(agitatorSpeed)
@@ -86,24 +89,25 @@ class IntakeAndShooter:
     def periodic(self):
         self.intakeController.setSetpoint(self.desiredIntakePosition, rev.SparkLowLevel.ControlType.kPosition)
 
-        self.shooterSpeedTopic.set(self.shooterEncoder.getVelocity())
+        self.rightShooterSpeedTopic.set(self.rightShooterEncoder.getVelocity())
+        self.leftShooterSpeedTopic.set(self.leftShooterEncoder.getVelocity())
         self.intakePositionTopic.set(self.intakeEncoder.getPosition())
         self.desiredIntakePositionTopic.set(self.desiredIntakePosition)
         self.agitatorSpeedTopic.set(self.agitatorEncoder.getVelocity())
         self.indexerSpeedTopic.set(self.indexerEncoder.getVelocity())
         self.rollerSpeedTopic.set(self.rollerEncoder.getVelocity())
-        self.mech.update(wheelAngle=self.shooterEncoder.getPosition())
+        self.mech.update(wheelAngle=self.leftShooterEncoder.getPosition())
         self.rightShooterCurrentTopic.set(self.rightShooterMotor.getOutputCurrent())
         self.leftShooterCurrentTopic.set(self.leftShooterMotor.getOutputCurrent())
 
-        self.currentFlywheelSpeed = self.shooterEncoder.getVelocity()
+        currentFlywheelSpeed = self.leftShooterEncoder.getVelocity()
 
-        if self.runFlywheel == True and self.currentFlywheelSpeed < constants.bangBangTargetRPM:
+        if self.runFlywheel == True and currentFlywheelSpeed < constants.bangBangTargetRPM:
             self.__setShooterSpeed(constants.shooterSpeed)
         else:
             self.__setShooterSpeed(0)
 
-        autoShootReady = self.runFlywheel and self.doShoot and self.currentFlywheelSpeed >= constants.shotRPM
+        autoShootReady = self.runFlywheel and self.doShoot and currentFlywheelSpeed >= constants.shotRPM
         if autoShootReady:
             self.__setAgitatorSpeed(constants.agitatorSpeed)
             self.__setIndexerSpeed(constants.indexerSpeed)

@@ -59,7 +59,7 @@ bangBangTargetRPM = 3782
 shotRPM = 3700
 
 intakeMotorReduction = 20
-shooterMotorRatio = 24/16
+shooterMotorRatio = 24/14
 
 intakeOutAngle = wpimath.units.degreesToRadians(-10)
 intakeInAngle = wpimath.units.degreesToRadians(-106)

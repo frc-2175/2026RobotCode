@@ -50,8 +50,7 @@ class Drivetrain:
             mode = SwerveHeadingMode.HUMAN_DRIVERS,
         )
 
-        self.roatationLimiter = wpimath.filter.SlewRateLimiter(constants.rotationSlewRate)
-        #TODO Acutual Rate Limit
+        self.rotationLimiter = wpimath.filter.SlewRateLimiter(constants.rotationSlewRate)
         self.velocityLimiter = SlewRateLimiter2D(constants.maxAcceleration*1/50)
 
         nt = ntutil.Folder("Drivetrain")
@@ -74,7 +73,7 @@ class Drivetrain:
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
         newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
 
-        newTurnSpeed = self.roatationLimiter.calculate(newTurnSpeed)
+        newTurnSpeed = self.rotationLimiter.calculate(newTurnSpeed)
 
         newChassisSpeeds = ChassisSpeeds(
             newVelocity.x, newVelocity.y, newTurnSpeed
@@ -141,7 +140,6 @@ class Drivetrain:
         # resetPose does what we want though so we are using it as a workaround.
         pose = self.odometry.getEstimatedPosition()
         self.odometry.resetPose(Pose2d(pose.x, pose.y, Rotation2d(angle)))
-        # self.odometry.resetRotation(Rotation2d(angle))
 
     def resetPose(self, pose: Pose2d):
         self.odometry.resetPose(pose)

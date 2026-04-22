@@ -17,9 +17,7 @@ from wpimath.kinematics import ChassisSpeeds
 
 class MyRobot(wpilib.TimedRobot):
 
-
     def robotInit(self):
-
         DataLogManager.start()
         DriverStation.startDataLog(DataLogManager.getLog())
 
@@ -66,6 +64,7 @@ class MyRobot(wpilib.TimedRobot):
             "DisableAutoMove":lambda: self.setAutoMove(False),
         }
         self.loadChoreoTrajectories()
+
         #Alerts
         self.badTrajectoryAlert = Alert("Choreo path not found", Alert.AlertType.kError)
 
@@ -121,13 +120,14 @@ class MyRobot(wpilib.TimedRobot):
        
     def teleopInit(self):
         self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
-        #TODO Reset Heading Controller
-
 
     def teleopPeriodic(self):
+        #Controller controls
         #x = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)* constants.humanMaxSpeed 
         #y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
         #t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
+
+        #Joystick Controls
         x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
         y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
         t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
@@ -159,26 +159,21 @@ class MyRobot(wpilib.TimedRobot):
         self.drivetrain.drive(x, y, t, not enableRobotRelative)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
-        rightTrigger = wpimath.applyDeadband(self.gamepad.getRawAxis(3), 0.1) > 0 #Unused
-
-        rollerSpeed:float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
+        rollerSpeed: float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
         
         #Intake (LS)
         self.intakeandshooter.changeIntakePosition(intakePositionChange)
 
         #Flywheel (LB)
         self.intakeandshooter.setFlywheelRunning(self.gamepad.getRawButton(5))
-
         
         #Auto Shoot(RB) and eject fuel (LT)
         self.intakeandshooter.startShooting(self.gamepad.getRawButton(6))
         self.intakeandshooter.runIndexerAndAgitatorOut(wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0)
 
-
         #Roller(RS)
         #The proper axis for the logitech controller is 5
         self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
-
 
         #Reset Rotation
         if self.leftJoystick.getRawButtonPressed(8):
@@ -210,6 +205,7 @@ class MyRobot(wpilib.TimedRobot):
                 trajectory = choreo.load_swerve_trajectory(autoName)
                 self.trajectoryChooser.addOption(autoName, trajectory)
 
+                # Create left version of auto paths since we only create the right version in Choreo.
                 if autoName.endswith("Right"):
                     trajectoryLeft = choreo.load_swerve_trajectory(autoName)
                     for i in range(len(trajectoryLeft.samples)):
@@ -231,14 +227,10 @@ class MyRobot(wpilib.TimedRobot):
                 ntutil.logAlert(self.badTrajectoryAlert, err)
     
     def updateTrajectoryTelemetry(self):
-        # Update
-        initial_pose = None
         if self.trajectory:
             if self.isRedAlliance():
                 self.autoTrajectoryTopic.set([s.flipped().get_pose() for s in self.trajectory.samples])
             else:
                 self.autoTrajectoryTopic.set([s.get_pose() for s in self.trajectory.samples])
-
-            initial_pose = self.trajectory.get_initial_pose(self.isRedAlliance())
         else:
             self.autoTrajectoryTopic.set([])

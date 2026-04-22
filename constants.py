@@ -14,7 +14,6 @@ robotMass = wpimath.units.lbsToKilograms(100)
 wheelDiameter = wpimath.units.inchesToMeters(3)
 """Diameter of a drive wheel."""
 
-# TODO Verify that this number is accurate
 wheelDistanceFromCenter = wpimath.units.inchesToMeters(11.875)
 """The distance along x or y from the center of the robot to a swerve wheel."""
 
@@ -70,5 +69,3 @@ choreoTranslationD = 6/wpimath.units.feetToMeters(20)
 choreoRotationP = 1/wpimath.units.degreesToRadians(30)
 choreoRotationI = 0
 choreoRotationD = 1/wpimath.units.degreesToRadians(75)
-
-robotToCam = Transform3d()

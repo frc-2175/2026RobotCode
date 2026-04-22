@@ -26,6 +26,9 @@ class SwerveHeadingMode(Enum):
     """
 
     ALWAYS_ON = 2
+    """
+    The heading controller is always on.
+    """
 
 
 class SwerveHeadingController:
@@ -63,7 +66,6 @@ class SwerveHeadingController:
         if self.mode == SwerveHeadingMode.DISABLED:
             output = rot
         elif self.mode == SwerveHeadingMode.HUMAN_DRIVERS:
-            # TODO: Validate if 40 deg/s is a reasonable threshold for disabling the controller.
             bot_turning = abs(rot) > 0.1 or abs(gyroRate) > wpimath.units.degreesToRadians(40)
             bot_translating = speed > 0
             should_maintain_heading = not bot_turning and bot_translating

@@ -5,7 +5,7 @@ import constants
 import wpimath
 import math
 import choreo
-from utils import ntutil
+from utils import ntutil, mathutil
 import os
 from typing import List, Callable, Dict
 from wpilib import Alert, SmartDashboard, DataLogManager, DriverStation
@@ -26,6 +26,7 @@ class MyRobot(wpilib.TimedRobot):
         self.leftJoystick = wpilib.Joystick(0)
         self.rightJoystick = wpilib.Joystick(1)
         self.gamepad = wpilib.Joystick(2)
+        self.backupGamepad = wpilib.Joystick(3)
 
         # NOTE(ben): In real competition scenarios this will not really be necessary,
         # because autonomous will necessarily reset the estimated pose to whatever is
@@ -48,6 +49,8 @@ class MyRobot(wpilib.TimedRobot):
         self.autoChassisSpeedsTopic = autont.getStructTopic("ChassisSpeeds", ChassisSpeeds)
         self.autoPoseTopic = autont.getStructTopic("Pose", Pose2d)
         self.autoMoveTopic = autont.getBooleanTopic("AutoMove")
+
+        self.outreachSpeedTopic = ntutil.getFloatTopic("OutreachSpeed")
         
         SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
@@ -126,12 +129,15 @@ class MyRobot(wpilib.TimedRobot):
         #x = wpimath.applyDeadband(-self.gamepad.getRawAxis(1), 0.1)* constants.humanMaxSpeed 
         #y = wpimath.applyDeadband(-self.gamepad.getRawAxis(0), 0.1)* constants.humanMaxSpeed
         #t = wpimath.applyDeadband(-self.gamepad.getRawAxis(4), 0.1)* constants.humanMaxTurnSpeed
+        outreachSpeed = mathutil.remap(self.leftJoystick.getRawAxis(2), (-1, 1), (1, 0.1))
+        self.outreachSpeedTopic.set(outreachSpeed)
 
         #Joystick Controls
-        x = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) * constants.humanMaxSpeed
-        y = wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) * constants.humanMaxSpeed
-        t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) * constants.humanMaxTurnSpeed
+        x = (wpimath.applyDeadband(-self.leftJoystick.getRawAxis(1), 0.1) + wpimath.applyDeadband(-self.backupGamepad.getRawAxis(1), 0.1)) * constants.humanMaxSpeed * outreachSpeed
+        y = (wpimath.applyDeadband(-self.leftJoystick.getRawAxis(0), 0.1) + wpimath.applyDeadband(-self.backupGamepad.getRawAxis(0), 0.1)) * constants.humanMaxSpeed * outreachSpeed
+        t = wpimath.applyDeadband(-self.rightJoystick.getRawAxis(0), 0.1) + wpimath.applyDeadband(-self.backupGamepad.getRawAxis(4), 0.1) * constants.humanMaxTurnSpeed * outreachSpeed
         joystickAngle = -self.rightJoystick.getDirectionRadians()
+
 
         enableRobotRelative = self.rightJoystick.getRawButton(3) or self.leftJoystick.getRawButton(3)
 

@@ -163,23 +163,34 @@ class MyRobot(wpilib.TimedRobot):
             self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
         self.drivetrain.drive(x, y, t, not enableRobotRelative)
+        outreachIntakePositionChange = 0
+        outreachRollerSpeed = 0
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
+        if self.backupGamepad.getRawButton (3):
+            outreachIntakePositionChange = -1
+        elif self.backupGamepad.getRawButton(4):
+            outreachIntakePositionChange = 1
+
         rollerSpeed: float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)
+        if self.backupGamepad.getRawButton(2):
+            outreachRollerSpeed = 1
+        elif self.backupGamepad.getRawButton(1):
+            outreachRollerSpeed = -1
         
         #Intake (LS)
-        self.intakeandshooter.changeIntakePosition(intakePositionChange)
+        self.intakeandshooter.changeIntakePosition(intakePositionChange + outreachIntakePositionChange)
 
         #Flywheel (LB)
-        self.intakeandshooter.setFlywheelRunning(self.gamepad.getRawButton(5))
+        self.intakeandshooter.setFlywheelRunning(self.gamepad.getRawButton(5) or self.backupGamepad.getRawButton(5))
         
         #Auto Shoot(RB) and eject fuel (LT)
-        self.intakeandshooter.startShooting(self.gamepad.getRawButton(6))
-        self.intakeandshooter.runIndexerAndAgitatorOut(wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0)
+        self.intakeandshooter.startShooting(self.gamepad.getRawButton(6) or self.backupGamepad.getRawButton(6))
+        self.intakeandshooter.runIndexerAndAgitatorOut(wpimath.applyDeadband(self.gamepad.getRawAxis(2), 0.1) > 0 or wpimath.applyDeadband(self.backupGamepad.getRawAxis(2), 0.1) > 0)
 
         #Roller(RS)
         #The proper axis for the logitech controller is 5
-        self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed)
+        self.intakeandshooter.setRollerSpeed(rollerSpeed * constants.rollerSpeed or outreachRollerSpeed * constants.rollerSpeed)
 
         #Reset Rotation
         if self.leftJoystick.getRawButtonPressed(8):

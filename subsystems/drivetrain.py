@@ -6,7 +6,7 @@ import constants
 import utils.ntutil as ntutil
 from wpimath.kinematics import ChassisSpeeds, SwerveModuleState, SwerveDrive4Kinematics
 import wpimath.units
-from wpimath.geometry import Rotation2d, Translation2d, Pose2d, Pose3d
+from wpimath.geometry import Rotation2d, Translation2d, Pose2d, Pose3d, Translation3d
 from wpimath.estimator import SwerveDrive4PoseEstimator
 from utils.swerveheading import SwerveHeadingController, SwerveHeadingMode
 import math
@@ -27,6 +27,8 @@ class Drivetrain:
         self.backRightSwerveModule = SwerveModule(ids.backRightDrive, ids.backRightSteer, -math.pi/2)
         self.kinematics = SwerveDrive4Kinematics(*constants.swerveModulePositions)
         self.gyro = navx.AHRS.create_spi()
+
+        
 
         self.odometry = SwerveDrive4PoseEstimator(
             self.kinematics,
@@ -61,7 +63,9 @@ class Drivetrain:
         self.gyroHeadingTopic = nt.getFloatTopic("GyroHeading")
         self.robotPoseTopic = nt.getStructTopic("RobotPose", Pose2d)
         self.visionPoseTopic = nt.getStructTopic("VisionPose", Pose3d)
-
+        self.accelerationTopic = nt.getFloatTopic("Acceleration")
+        self.accelAxisTopic = nt.getStructTopic("AccelerationAxis", Translation3d)
+       
         self.choreoXController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoYController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoHeadingController = PIDController(constants.choreoRotationP, constants.choreoRotationI,constants.choreoRotationD)
@@ -72,8 +76,11 @@ class Drivetrain:
         moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
         newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
         newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
-
         newTurnSpeed = self.rotationLimiter.calculate(newTurnSpeed)
+
+        self.xAccel = self.gyro.getRawAccelX() * 9.80665
+        self.yAccel = self.gyro.getRawAccelY() * 9.80665
+        self.zAccel = self.gyro.getRawAccelZ() * 9.80665
 
         newChassisSpeeds = ChassisSpeeds(
             newVelocity.x, newVelocity.y, newTurnSpeed
@@ -105,8 +112,12 @@ class Drivetrain:
                 self.backRightSwerveModule.getActualPosition(),
             )
         )
+        
 
         self.robotPoseTopic.set(self.odometry.getEstimatedPosition())
+        self.accelerationTopic.set(math.sqrt(self.xAccel**2 + self.yAccel**2 ))
+        self.accelAxisTopic.set(Translation3d(self.xAccel, self.yAccel, self.zAccel))
+
 
     
 

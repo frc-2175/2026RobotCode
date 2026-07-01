@@ -11,7 +11,7 @@ from typing import List, Callable, Dict
 from wpilib import Alert, SmartDashboard, DataLogManager, DriverStation
 from utils.swerveheading import SwerveHeadingMode
 import choreo.trajectory
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Translation2d
 from wpimath.kinematics import ChassisSpeeds
 
 
@@ -48,6 +48,8 @@ class MyRobot(wpilib.TimedRobot):
         self.autoChassisSpeedsTopic = autont.getStructTopic("ChassisSpeeds", ChassisSpeeds)
         self.autoPoseTopic = autont.getStructTopic("Pose", Pose2d)
         self.autoMoveTopic = autont.getBooleanTopic("AutoMove")
+        self.autoAccelerationAxisTopic = autont.getStructTopic("AutoAccelerationAxis", Translation2d)
+        self.autoAccelerationTopic = autont.getFloatTopic("AutoAcceleration")
         
         SmartDashboard.putData("Auto Trajectory", self.trajectoryChooser)
 
@@ -97,6 +99,8 @@ class MyRobot(wpilib.TimedRobot):
                 self.drivetrain.followChoreoSample(sample)
                 self.autoChassisSpeedsTopic.set(sample.get_chassis_speeds())
                 self.autoPoseTopic.set(sample.get_pose())
+                self.autoAccelerationAxisTopic.set(Translation2d(sample.ax, sample.ay))
+                self.autoAccelerationTopic.set(math.sqrt(sample.ax **2 + sample.ay **2))
             else:
                 self.drivetrain.drive(0, 0, 0, fieldRelative= True)
 

@@ -45,7 +45,7 @@ class Drivetrain:
         )
 
         self.desiredChassisSpeeds = ChassisSpeeds()
-        self.rawTorqueTest = False
+        self.rawAccelTest = False
 
         self.headingController = SwerveHeadingController(
             getHeading = self.getHeading,
@@ -88,16 +88,16 @@ class Drivetrain:
         )
 
         frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(newChassisSpeeds)
-        if self.rawTorqueTest:
-            raw_torque = 0.5
+        if self.rawAccelTest:
+            raw_accel = 1 # m/s^2
             frontLeft = SwerveModuleState(0, Rotation2d())
             frontRight = SwerveModuleState(0, Rotation2d())
             backLeft = SwerveModuleState(0, Rotation2d())
             backRight = SwerveModuleState(0, Rotation2d())
-            self.frontLeftSwerveModule.setDesiredState(frontLeft, raw_torque)
-            self.frontRightSwerveModule.setDesiredState(frontRight, raw_torque)
-            self.backLeftSwerveModule.setDesiredState(backLeft, raw_torque)
-            self.backRightSwerveModule.setDesiredState(backRight, raw_torque)
+            self.frontLeftSwerveModule.setDesiredState(frontLeft, raw_accel)
+            self.frontRightSwerveModule.setDesiredState(frontRight, raw_accel)
+            self.backLeftSwerveModule.setDesiredState(backLeft, raw_accel)
+            self.backRightSwerveModule.setDesiredState(backRight, raw_accel)
         else:
             self.frontLeftSwerveModule.setDesiredState(frontLeft)
             self.frontRightSwerveModule.setDesiredState(frontRight)

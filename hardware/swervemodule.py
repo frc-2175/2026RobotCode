@@ -41,7 +41,7 @@ class SwerveModule:
         self.drivePidController = self.driveMotor.getClosedLoopController()
         self.steerPidController = self.steerMotor.getClosedLoopController()
 
-    def setDesiredState(self, state: SwerveModuleState, raw_torque: wpimath.units.newton_meters | None = None):
+    def setDesiredState(self, state: SwerveModuleState, raw_accel: wpimath.units.meters_per_second_squared | None = None):
         """
         Sets the desired state of the swerve module (angle/speed). This method
         will account for the swerve module's angle offset, so the angle
@@ -52,9 +52,10 @@ class SwerveModule:
         encoderRotation = Rotation2d(self.steerEncoder.getPosition())
         # stateLocal.optimize(encoderRotation)
         stateLocal.cosineScale(encoderRotation)
-        if raw_torque is None:
+        if raw_accel is None:
             self.drivePidController.setSetpoint(stateLocal.speed, rev.SparkLowLevel.ControlType.kVelocity)
         else:
+            raw_torque = self.accelerationToMotorTorque(raw_accel)
             self.driveMotor.setVoltage(self.torqueToOutputVoltage(raw_torque))
         self.steerPidController.setSetpoint(stateLocal.angle.radians(), rev.SparkLowLevel.ControlType.kPosition)
 

@@ -161,7 +161,7 @@ class MyRobot(wpilib.TimedRobot):
             self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
         self.drivetrain.drive(x, y, t, not enableRobotRelative)
-        self.drivetrain.rawTorqueTest = self.rightJoystick.getRawButton(3)
+        self.drivetrain.rawAccelTest = self.rightJoystick.getRawButton(3)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
         rollerSpeed: float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)

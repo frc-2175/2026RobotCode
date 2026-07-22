@@ -77,22 +77,12 @@ class SwerveModule:
 
     # Function to compute output for a desired torque, based on current wheel speed,
     # according to the data sheet: https://www.revrobotics.com/content/docs/REV-21-1650-DS.pdf
-    #
-    # See also Mr. Visness's simplified motor model: https://www.desmos.com/calculator/5e2ffcfg30
     def torqueToOutputVoltage(self, torque: wpimath.units.newton_meters) -> wpimath.units.volts:
+        max_torque = 2.6 # Nm
+        max_rpm = 5676 # rpm at which we get 0 torque
         max_volts = 12
-        t_stall = 2.6 # Nm
-        c_stall = 105 # A
-        c_free = 1.8 # A
-        rpm_free = 5676 # rpm
-
-        resistance = max_volts / c_stall
-        v_free = c_free * resistance
-        kt = t_stall / c_stall
-        ke = (max_volts - v_free) / rpm_free
-
         current_rpm = self.driveEncoder.getVelocity() / self.driveMotor.configAccessor.encoder.getVelocityConversionFactor()
-        v_bemf = ke * current_rpm
-        v_out = (resistance * torque) / kt - v_bemf
-
-        return v_out
+        current_max_torque = mathutil.lerp(max_torque, 0, current_rpm / max_rpm)
+        output_fraction = torque / current_max_torque
+        output_volts = output_fraction * max_volts
+        return output_volts

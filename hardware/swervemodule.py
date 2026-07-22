@@ -2,6 +2,7 @@ import rev
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
 import wpimath.units
+import constants
 
 import configs
 from utils import mathutil
@@ -86,3 +87,7 @@ class SwerveModule:
         output_fraction = torque / current_max_torque
         output_volts = output_fraction * max_volts
         return output_volts
+
+    def accelerationToMotorTorque(self, accel: wpimath.units.meters_per_second_squared) -> wpimath.units.newton_meters:
+        motorTorque = (accel * (constants.wheelDiameter/2) * constants.robotMass) / 4.71
+        return motorTorque

@@ -117,10 +117,6 @@ class Drivetrain:
             newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
             newTurnSpeed = self.rotationLimiter.calculate(newTurnSpeed)
 
-            self.xAccel = self.gyro.getRawAccelX() * 9.80665
-            self.yAccel = self.gyro.getRawAccelY() * 9.80665
-            self.zAccel = self.gyro.getRawAccelZ() * 9.80665
-
             newChassisSpeeds = ChassisSpeeds(
                 newVelocity.x, newVelocity.y, newTurnSpeed
             )
@@ -152,8 +148,11 @@ class Drivetrain:
                 self.backRightSwerveModule.getActualPosition(),
             )
         )
-        
 
+        self.xAccel = self.gyro.getRawAccelX() * 9.80665
+        self.yAccel = self.gyro.getRawAccelY() * 9.80665
+        self.zAccel = self.gyro.getRawAccelZ() * 9.80665
+        
         self.robotPoseTopic.set(self.odometry.getEstimatedPosition())
         self.accelerationTopic.set(math.sqrt(self.xAccel**2 + self.yAccel**2 ))
         self.accelAxisTopic.set(Translation3d(self.xAccel, self.yAccel, self.zAccel))

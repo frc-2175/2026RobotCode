@@ -102,7 +102,7 @@ class MyRobot(wpilib.TimedRobot):
                 self.autoAccelerationAxisTopic.set(Translation2d(sample.ax, sample.ay))
                 self.autoAccelerationTopic.set(math.sqrt(sample.ax **2 + sample.ay **2))
             else:
-                self.drivetrain.drive(0, 0, 0, fieldRelative= True)
+                self.drivetrain.driveTeleop(0, 0, 0, fieldRelative= True)
 
             for event in self.trajectory.events:
                 if self.previousAutoTime <= event.timestamp < currentAutoTime:
@@ -160,8 +160,7 @@ class MyRobot(wpilib.TimedRobot):
         else:
             self.drivetrain.setHeadingControllerMode(SwerveHeadingMode.HUMAN_DRIVERS)
 
-        self.drivetrain.drive(x, y, t, not enableRobotRelative)
-        self.drivetrain.rawAccelTest = self.rightJoystick.getRawButton(3)
+        self.drivetrain.driveTeleop(x, y, t, not enableRobotRelative)
 
         intakePositionChange: float = wpimath.applyDeadband(self.gamepad.getRawAxis(1), 0.1) * 1/8
         rollerSpeed: float = wpimath.applyDeadband(self.gamepad.getRawAxis(5), 0.1)

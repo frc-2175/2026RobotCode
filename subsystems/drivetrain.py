@@ -45,7 +45,10 @@ class Drivetrain:
         )
 
         self.desiredChassisSpeeds = ChassisSpeeds()
-        self.rawAccelTest = False
+
+        self.autonomousMode = False
+        self.autoVelocityChassisSpeeds = ChassisSpeeds()
+        self.autoAccelChassisSpeeds = ChassisSpeeds() # NOTE(ben): We are "lying" to kinematics about the units with this, but it's fine.
 
         self.headingController = SwerveHeadingController(
             getHeading = self.getHeading,
@@ -66,47 +69,72 @@ class Drivetrain:
         self.visionPoseTopic = nt.getStructTopic("VisionPose", Pose3d)
         self.accelerationTopic = nt.getFloatTopic("Acceleration")
         self.accelAxisTopic = nt.getStructTopic("AccelerationAxis", Translation3d)
-       
+        self.autoVelocityChassisSpeedsTopic = nt.getStructTopic("AutoVelocityChassisSpeeds", ChassisSpeeds)
+        self.autoAccelerationChassisSpeedsTopic = nt.getStructTopic("AutoAccelerationChassisSpeeds", ChassisSpeeds)
+        self.frontLeftFFVelTopic = nt.getFloatTopic("FrontLeftFFVel")
+        self.frontLeftFFAccTopic = nt.getFloatTopic("FrontLeftFFAcc")
+        self.frontLeftFFTopic = nt.getFloatTopic("FrontLeftFF")
+
         self.choreoXController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoYController = PIDController(constants.choreoTranslationP, constants.choreoTranslationI, constants.choreoTranslationD)
         self.choreoHeadingController = PIDController(constants.choreoRotationP, constants.choreoRotationI,constants.choreoRotationD)
         self.choreoHeadingController.enableContinuousInput(-math.pi, math.pi)
 
     def periodic(self):
+        if self.autonomousMode:
+            frontLeftVel, frontRightVel, backLeftVel, backRightVel = self.kinematics.toSwerveModuleStates(self.autoVelocityChassisSpeeds)
+            frontLeftAcc, frontRightAcc, backLeftAcc, backRightAcc = self.kinematics.toSwerveModuleStates(self.autoAccelChassisSpeeds)
 
-        moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
-        newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
-        newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
-        newTurnSpeed = self.rotationLimiter.calculate(newTurnSpeed)
+            frontLeftFFVel = frontLeftVel.speed / constants.physicalMaxSpeed * 12
+            frontLeftFFAcc = self.frontLeftSwerveModule.accelerationToMotorVoltage(frontLeftAcc.speed) # NOTE(ben): "Speed" is in m/s^2 because it is actually acceleration :)
+            frontLeftFFVoltage = frontLeftFFVel + frontLeftFFAcc
 
-        self.xAccel = self.gyro.getRawAccelX() * 9.80665
-        self.yAccel = self.gyro.getRawAccelY() * 9.80665
-        self.zAccel = self.gyro.getRawAccelZ() * 9.80665
+            frontRightFFVel = frontRightVel.speed / constants.physicalMaxSpeed * 12
+            frontRightFFAcc = self.frontRightSwerveModule.accelerationToMotorVoltage(frontRightAcc.speed)
+            frontRightFFVoltage = frontRightFFVel + frontRightFFAcc
 
-        newChassisSpeeds = ChassisSpeeds(
-            newVelocity.x, newVelocity.y, newTurnSpeed
-        )
+            backLeftFFVel = backLeftVel.speed / constants.physicalMaxSpeed * 12
+            backLeftFFAcc = self.backLeftSwerveModule.accelerationToMotorVoltage(backLeftAcc.speed)
+            backLeftFFVoltage = backLeftFFVel + backLeftFFAcc
 
-        frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(newChassisSpeeds)
-        if self.rawAccelTest:
-            raw_accel = 1 # m/s^2
-            frontLeft = SwerveModuleState(0, Rotation2d())
-            frontRight = SwerveModuleState(0, Rotation2d())
-            backLeft = SwerveModuleState(0, Rotation2d())
-            backRight = SwerveModuleState(0, Rotation2d())
-            self.frontLeftSwerveModule.setDesiredState(frontLeft, raw_accel)
-            self.frontRightSwerveModule.setDesiredState(frontRight, raw_accel)
-            self.backLeftSwerveModule.setDesiredState(backLeft, raw_accel)
-            self.backRightSwerveModule.setDesiredState(backRight, raw_accel)
+            backRightFFVel = backRightVel.speed / constants.physicalMaxSpeed * 12
+            backRightFFAcc = self.backRightSwerveModule.accelerationToMotorVoltage(backRightAcc.speed)
+            backRightFFVoltage = backRightFFVel + backRightFFAcc
+
+            self.frontLeftSwerveModule.setDesiredState(frontLeftVel, frontLeftFFVoltage)
+            self.frontRightSwerveModule.setDesiredState(frontRightVel, frontRightFFVoltage)
+            self.backLeftSwerveModule.setDesiredState(backLeftVel, backLeftFFVoltage)
+            self.backRightSwerveModule.setDesiredState(backRightVel, backRightFFVoltage)
+
+            self.autoVelocityChassisSpeedsTopic.set(self.autoVelocityChassisSpeeds)
+            self.autoAccelerationChassisSpeedsTopic.set(self.autoAccelChassisSpeeds)
+            self.frontLeftFFVelTopic.set(frontLeftFFVel)
+            self.frontLeftFFAccTopic.set(frontLeftFFAcc)
+            self.frontLeftFFTopic.set(frontLeftFFVoltage)
         else:
+            moveSpeed = math.sqrt(self.desiredChassisSpeeds.vx**2 + self.desiredChassisSpeeds.vy**2)
+            newTurnSpeed = self.headingController.update(moveSpeed, self.desiredChassisSpeeds.omega)
+            newVelocity = self.velocityLimiter.calculate(Vector2d(self.desiredChassisSpeeds.vx, self.desiredChassisSpeeds.vy))
+            newTurnSpeed = self.rotationLimiter.calculate(newTurnSpeed)
+
+            self.xAccel = self.gyro.getRawAccelX() * 9.80665
+            self.yAccel = self.gyro.getRawAccelY() * 9.80665
+            self.zAccel = self.gyro.getRawAccelZ() * 9.80665
+
+            newChassisSpeeds = ChassisSpeeds(
+                newVelocity.x, newVelocity.y, newTurnSpeed
+            )
+
+            frontLeft, frontRight, backLeft, backRight = self.kinematics.toSwerveModuleStates(newChassisSpeeds)
             self.frontLeftSwerveModule.setDesiredState(frontLeft)
             self.frontRightSwerveModule.setDesiredState(frontRight)
             self.backLeftSwerveModule.setDesiredState(backLeft)
             self.backRightSwerveModule.setDesiredState(backRight)
 
-        self.desiredChassisSpeedsTopic.set(self.desiredChassisSpeeds)
-        self.newChassisSpeedsTopic.set(newChassisSpeeds)
-        self.desiredStatesTopic.set([frontLeft, frontRight, backLeft, backRight])
+            self.desiredChassisSpeedsTopic.set(self.desiredChassisSpeeds)
+            self.newChassisSpeedsTopic.set(newChassisSpeeds)
+            self.desiredStatesTopic.set([frontLeft, frontRight, backLeft, backRight])
+
         self.actualStatesTopic.set([
             self.frontLeftSwerveModule.getActualState(),
             self.frontRightSwerveModule.getActualState(),
@@ -133,13 +161,14 @@ class Drivetrain:
 
     
 
-    def drive(
+    def driveTeleop(
         self,
         xSpeed: wpimath.units.meters_per_second,
         ySpeed: wpimath.units.meters_per_second,
         turnSpeed: wpimath.units.radians_per_second,
         fieldRelative: bool,
     ):
+        self.autonomousMode = False
         if fieldRelative:
             self.desiredChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 xSpeed,
@@ -149,7 +178,29 @@ class Drivetrain:
             )
         else:
             self.desiredChassisSpeeds = ChassisSpeeds(xSpeed, ySpeed, turnSpeed)
-        
+
+    def driveAutonomous(
+        self,
+        xSpeed: wpimath.units.meters_per_second,
+        ySpeed: wpimath.units.meters_per_second,
+        omega: wpimath.units.radians_per_second,
+        xAccel: wpimath.units.meters_per_second_squared,
+        yAccel: wpimath.units.meters_per_second_squared,
+        alpha: wpimath.units.radians_per_second_squared,
+    ):
+        self.autonomousMode = True
+        self.autoVelocityChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            xSpeed,
+            ySpeed,
+            omega,
+            self.odometry.getEstimatedPosition().rotation()
+        )
+        self.autoAccelChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            xAccel,
+            yAccel,
+            alpha,
+            self.odometry.getEstimatedPosition().rotation()
+        )
         
     def getHeading(self) -> Rotation2d:
         return self.odometry.getEstimatedPosition().rotation()
@@ -173,12 +224,15 @@ class Drivetrain:
     def followChoreoSample(self, sample: choreo.trajectory.SwerveSample):
         pose = self.odometry.getEstimatedPosition()
 
-        self.drive(
-            sample.vx + self.choreoXController.calculate(pose.X(), sample.x),
-            sample.vy + self.choreoYController.calculate(pose.Y(), sample.y),
-            sample.omega + self.choreoHeadingController.calculate(pose.rotation().radians(), sample.heading),
-            fieldRelative= True
-        )
-    
+        # self.driveTeleop(
+        #     sample.vx + self.choreoXController.calculate(pose.X(), sample.x),
+        #     sample.vy + self.choreoYController.calculate(pose.Y(), sample.y),
+        #     sample.omega + self.choreoHeadingController.calculate(pose.rotation().radians(), sample.heading),
+        #     fieldRelative= True
+        # )
+
+        # TODO: Eventually, add back PID :)
+        self.driveAutonomous(sample.vx, sample.vy, sample.omega, sample.ax, sample.ay, sample.alpha)
+
     def setHeadingControllerGoal(self, angle : Rotation2d):
         self.headingController.setGoal(angle)

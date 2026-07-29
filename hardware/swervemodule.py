@@ -41,7 +41,7 @@ class SwerveModule:
         self.drivePidController = self.driveMotor.getClosedLoopController()
         self.steerPidController = self.steerMotor.getClosedLoopController()
 
-    def setDesiredState(self, state: SwerveModuleState, raw_accel: wpimath.units.meters_per_second_squared | None = None):
+    def setDesiredState(self, state: SwerveModuleState, rawVoltage: wpimath.units.volts | None = None):
         """
         Sets the desired state of the swerve module (angle/speed). This method
         will account for the swerve module's angle offset, so the angle
@@ -50,13 +50,13 @@ class SwerveModule:
         """
         stateLocal = SwerveModuleState(state.speed, Rotation2d(state.angle.radians() - self.angleOffset))
         encoderRotation = Rotation2d(self.steerEncoder.getPosition())
-        # stateLocal.optimize(encoderRotation)
-        stateLocal.cosineScale(encoderRotation)
-        if raw_accel is None:
+        if rawVoltage is None:
+            stateLocal.optimize(encoderRotation)
+            stateLocal.cosineScale(encoderRotation)
             self.drivePidController.setSetpoint(stateLocal.speed, rev.SparkLowLevel.ControlType.kVelocity)
         else:
-            raw_torque = self.accelerationToMotorTorque(raw_accel)
-            self.driveMotor.setVoltage(self.torqueToOutputVoltage(raw_torque))
+            # TODO: Incorporate cosine scaling here, it is still relevant
+            self.driveMotor.setVoltage(rawVoltage)
         self.steerPidController.setSetpoint(stateLocal.angle.radians(), rev.SparkLowLevel.ControlType.kPosition)
 
     def getActualState(self) -> SwerveModuleState:
@@ -92,3 +92,15 @@ class SwerveModule:
     def accelerationToMotorTorque(self, accel: wpimath.units.meters_per_second_squared) -> wpimath.units.newton_meters:
         motorTorque = (accel * (constants.wheelDiameter/2) * constants.robotMass) / 4.71
         return motorTorque
+
+    def accelerationToMotorVoltage(self, accel: wpimath.units.meters_per_second_squared) -> wpimath.units.volts:
+        max_torque = 2.6 # Nm
+        max_rpm = 5676 # rpm at which we get 0 torque
+        max_volts = 12
+        current_rpm = self.driveEncoder.getVelocity() / self.driveMotor.configAccessor.encoder.getVelocityConversionFactor()
+        current_max_torque = mathutil.lerp(max_torque, 0, current_rpm / max_rpm)
+
+        motorTorque = (accel * (constants.wheelDiameter/2) * constants.robotMass) / 4.71
+        output_fraction = motorTorque / current_max_torque
+        output_volts = output_fraction * max_volts
+        return output_volts
